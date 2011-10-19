@@ -1,0 +1,16 @@
+name: [Tim, Wakefield]
+all_file: wakefield_all.png
+plots: 
+      -  
+         'pitch_type': 'FF'
+         'filename': 'wake_fourseam.png'
+         'marker': 'o'
+         'color': '#CC0000'
+      - 
+         'pitch_type': 'KN'
+         'filename': 'wake_knuckle.png'
+         'marker': 'p'
+         'color': '#DD00DD'
+      
+
+

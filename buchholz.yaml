@@ -1,0 +1,39 @@
+name: [Clay, Buchholz]
+all_file: buchholz_all.png
+colors: 
+   'X': '#0000EE'
+   'S': '#00EE00'
+   'B': '#EE0044'
+plots: 
+      -
+         'pitch_type': 'FF'
+         'filename': 'buchholz_fourseam.png'
+         'marker': 'o'
+         'color': '#CC0000'
+      -
+         'pitch_type': 'FT'
+         'filename': 'buchholz_twoseam.png'
+         'marker': 'p'
+         'color': '#DD00DD'
+      -
+         'pitch_type': 'CU'
+         'filename': 'buchholz_curve.png'
+         'marker': '^'
+         'color': '#0000CC'
+      -
+         'pitch_type': 'CH'
+         'filename': 'buchholz_change.png'
+         'marker': 'x'
+         'color': '#CC00CC'
+      -
+         'pitch_type': 'FC'
+         'filename': 'buchholz_cutter.png'
+         'marker': '*'
+         'color': '#000000'
+      -
+         'pitch_type': 'SL'
+         'filename': 'buchholz_slider.png'
+         'marker': 'v'
+         'color': '#660066'
+ 
+

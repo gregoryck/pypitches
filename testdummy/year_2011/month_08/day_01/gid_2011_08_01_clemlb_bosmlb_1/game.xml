@@ -1,0 +1,5 @@
+<!--Copyright 2011 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt--><game type="R" local_game_time="19:10" game_pk="288524" game_time_et="07:10 PM" gameday_sw="P">
+	<team type="home" code="bos" file_code="bos" abbrev="BOS" id="111" name="Boston" name_full="Boston Red Sox" name_brief="Red Sox" w="66" l="41" division_id="201" league_id="103" league="AL"/>
+	<team type="away" code="cle" file_code="cle" abbrev="CLE" id="114" name="Cleveland" name_full="Cleveland Indians" name_brief="Indians" w="54" l="52" division_id="202" league_id="103" league="AL"/>
+	<stadium id="3" name="Fenway Park" venue_w_chan_loc="USMA0046" location="Boston, MA"/>
+</game>

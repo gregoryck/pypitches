@@ -1,0 +1,15 @@
+gd2.tar.bz2
+download_log.txt
+*.pyc
+gosdb.sqlite
+pbp2.sql
+old
+*.sqlite
+*.log
+*.err
+*.png
+*.pdf
+*.svg
+downloads
+.*.swp
+*.sqlite-journal

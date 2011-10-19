@@ -1,0 +1,34 @@
+name: [Josh, Beckett]
+pitch_type: CU
+filename: 'speed_break_outcome.png'
+outcomes:
+   sw_strike:
+      color: '#B00000'
+      marker: o
+   foul:
+      color: '#CC8798'
+      marker: x
+   groundout:
+      color: '#006600'
+      marker: x
+   flyout:
+      color: '#006600'
+      marker: x
+   lineout:
+      color: '#006600'
+      marker: p
+   single:
+      color: '#000000'
+      marker: p
+   double:
+      color: '#000000'
+      marker: ^
+   triple:
+      color: '#000000'
+      marker: ^
+   homerun:
+      color: '#0000BB'
+      marker: ^
+   flyout:
+      color: '#006600'
+      marker: ^
