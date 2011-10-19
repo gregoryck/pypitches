@@ -8,6 +8,9 @@ This is a set of scripts to download PITCHf/x XML data from mlb.com,
 to load that data into a database (SQLite or Postgres),
 and to generate figures from that data.
 
+You can find a pdf of this readme (with images, as the code generates them)
+at http://web.mit.edu/gkettler/www/pypitches.pdf
+
 Requires
 --------
 - SQLite3 or PostgreSQL
@@ -23,7 +26,7 @@ Usage
 - It will download 2011 data from MLB (about 90 MB per month)
   and load into an SQlite file,
   then make some example plots
-- Alternatively, download http://web.mit.ed/gkettler/www/pitches.sql.gz
+- Alternatively, download http://web.mit.edu/gkettler/www/pitches.sql.gz
   and put that in an sqlite database
 
 Contents
