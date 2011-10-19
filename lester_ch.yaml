@@ -1,0 +1,15 @@
+name: [Jon, Lester]
+marker: o
+colors: 
+   'X': '#0000EE'
+   'S': '#00EE00'
+   'B': '#EE0044'
+plots: 
+      -
+         pitch_type: 'CH'
+         filename: 'lester_ch_l.png'
+         stand: 'L'
+      -
+         pitch_type: 'CH'
+         filename: 'lester_ch_r.png'
+         stand: 'R'

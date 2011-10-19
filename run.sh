@@ -11,3 +11,6 @@ sqlite3 baseball.sqlite < pitches.sql
 python plot_pitch_types.py wakefield.yaml
 python plot_pitch_types.py buchholz.yaml
 python scatterplot.py beckett_break.yaml
+python plot_pitch_locations.py lester_ch.yaml
+
+rst2html readme.rst > readme.html

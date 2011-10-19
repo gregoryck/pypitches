@@ -74,6 +74,15 @@ examples
 
    Tim Wakefield, on the other hand, relies mostly on one pitch. But that knuckleball goes every which way.
 
+.. figure:: lester_ch_r.png
+
+   We can also plot the pitch's final location. 
+   Here we easily see that Jon Lester, a lefty, throws a lot of changeups to right-handed
+   batters and keeps them away from the batter...
+
+.. figure:: lester_ch_l.png
+
+   ...while throwing very few changeups to lefties.
 
 .. figure:: speed_break_outcome.png
    :scale: 70%
