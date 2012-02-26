@@ -1,9 +1,9 @@
 gamedirs_file: gamedirs.2011.yaml
-user: baseball
-password: slider
-engine: sqlite
-#engine: postgres
-postgres_db: baseball
+#engine: sqlite
+engine: postgres
+postgres_db: pypitches 
+postgres_user: baseball
+postgres_password: slider
 sqlite_file: baseball.sqlite
 tables_file: baseball.sql
 ignore_files: [inning_Scores.xml, inning_hit.xml]

@@ -4,7 +4,7 @@ import yaml
 import unittest
 
 from load import load_games
-import baseball
+import pypitches as baseball
 import baseball_query
 from baseball_query import pitches
 

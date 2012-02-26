@@ -1,3 +1,7 @@
+# 1 "baseball.sql.pre"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "baseball.sql.pre"
 begin;
 
 --drop table pitch;
@@ -77,15 +81,15 @@ CREATE TABLE atbat (
    batter INTEGER,
    stand CHAR(1),
    p_throws CHAR(1),
-   b_height  VARCHAR(32),
+   b_height VARCHAR(32),
    pitcher INTEGER,
-   des  VARCHAR(512),
-   event  VARCHAR(128),
-   brief_event  VARCHAR(128),
+   des VARCHAR(512),
+   event VARCHAR(128),
+   brief_event VARCHAR(128),
 
    game_pk INTEGER NOT NULL,
    date VARCHAR(32),
-   
+
    FOREIGN KEY (game_pk) REFERENCES game (game_pk),
    FOREIGN KEY (batter) REFERENCES player (id),
    FOREIGN KEY (pitcher) REFERENCES player (id),
@@ -94,7 +98,12 @@ CREATE TABLE atbat (
 );
 
 CREATE TABLE runner (
-   runner_pk INTEGER PRIMARY KEY AUTOINCREMENT,
+
+   runner_pk SERIAL PRIMARY KEY,
+
+
+
+
    atbatnum INTEGER,
    game_pk INTEGER,
 

@@ -11,7 +11,7 @@ import pdb
 import yaml
 from sqlalchemy.exc import IntegrityError
 from dateutil import parser
-import baseball
+import pypitches as baseball
 
 verbose = False
 
@@ -216,9 +216,13 @@ def get_keys_and_dirs(gamedirs_file):
       yield key, dirs
 
 if __name__ == "__main__":
-   if len(sys.argv) > 1:
-      print "load.py doesn't recognize the argument -- use baseball.yaml"
+   if len(sys.argv) == 2:
+      settings_file = sys.argv[1]
+   elif len(sys.argv) == 1:
+       settings_file = 'baseball.yaml'
    else:
-      settings, session = baseball.init('baseball.yaml')
-      gamedirs_file = settings['gamedirs_file']
-      load_games(session, gamedirs_file)
+      print "usage: python load.py baseball.yaml"
+
+   settings, session = baseball.init(settings_file)
+   gamedirs_file = settings['gamedirs_file']
+   load_games(session, gamedirs_file)

@@ -1,11 +1,11 @@
 # baseball_query.py
 # Set of utility functions to grab certain pitches
-# by contructing the SQLAlchemy query,
+# by constructing the SQLAlchemy query,
 # and return NumPy records for more convenient plotting.
 
 import numpy
-import baseball
-from baseball import Pitch, AtBat, Player, Game
+import pypitches as baseball
+from pypitches import Pitch, AtBat, Player, Game
 import matplotlib.pyplot as plt
 import pdb
 
