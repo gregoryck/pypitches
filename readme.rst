@@ -14,7 +14,7 @@ at http://web.mit.edu/gkettler/www/pypitches.pdf
 Requires
 --------
 - SQLite3 or PostgreSQL
-- PyYAML (included in recent Python )
+- PyYAML (included in recent Python releases)
 - BeautifulSoup
 - SQLAlchemy
 - NumPy
