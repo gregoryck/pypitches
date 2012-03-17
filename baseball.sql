@@ -1,7 +1,3 @@
-# 1 "baseball.sql.pre"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "baseball.sql.pre"
 begin;
 
 --drop table pitch;
@@ -81,11 +77,11 @@ CREATE TABLE atbat (
    batter INTEGER,
    stand CHAR(1),
    p_throws CHAR(1),
-   b_height VARCHAR(32),
+   b_height  VARCHAR(32),
    pitcher INTEGER,
-   des VARCHAR(512),
-   event VARCHAR(128),
-   brief_event VARCHAR(128),
+   des  VARCHAR(512),
+   event  VARCHAR(128),
+   brief_event  VARCHAR(128),
 
    game_pk INTEGER NOT NULL,
    date VARCHAR(32),
@@ -97,12 +93,15 @@ CREATE TABLE atbat (
 
 );
 
+CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
+    INCREMENT BY 1 --:POSTGRES
+    NO MAXVALUE --:POSTGRES
+    NO MINVALUE --:POSTGRES
+    CACHE 1; --:POSTGRES
+
+
 CREATE TABLE runner (
-
-   runner_pk SERIAL PRIMARY KEY,
-
-
-
+   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --:POSTGRES
 
    atbatnum INTEGER,
    game_pk INTEGER,
@@ -155,7 +154,7 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
-   payoff INTEGER,
+   payoff BOOLEAN, --:POSTGRES
    balls INTEGER,
    strikes INTEGER,
 

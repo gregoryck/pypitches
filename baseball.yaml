@@ -2,7 +2,7 @@ gamedirs_file: gamedirs.2011.yaml
 #engine: sqlite
 engine: postgres
 postgres_db: pypitches 
-postgres_user: baseball
+postgres_user: pypitches
 postgres_password: slider
 sqlite_file: baseball.sqlite
 tables_file: baseball.sql

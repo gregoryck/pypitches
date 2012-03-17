@@ -189,6 +189,7 @@ def load_game_data(game_pk, gamedirs):
    Then load atbats and pitches.
    """
    gameobj = loadbox(gamedirs)
+   print gameobj.start_date
    for gamedir in gamedirs:
       loadplayers(os.path.join(gamedir, "players.xml"), gameobj)
    if verbose: print "loaded game metadata: ", gamedir

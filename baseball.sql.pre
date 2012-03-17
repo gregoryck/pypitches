@@ -93,8 +93,15 @@ CREATE TABLE atbat (
 
 );
 
+CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
+    INCREMENT BY 1 --:POSTGRES
+    NO MAXVALUE --:POSTGRES
+    NO MINVALUE --:POSTGRES
+    CACHE 1; --:POSTGRES
+
+
 CREATE TABLE runner (
-   runner_pk SERIAL PRIMARY KEY, --:POSTGRES
+   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --:POSTGRES
    runner_pk INTEGER PRIMARY KEY, --:SQLITE
 
    atbatnum INTEGER,
@@ -148,7 +155,8 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
-   payoff INTEGER,
+   payoff INTEGER, --:SQLITE
+   payoff BOOLEAN, --:POSTGRES
    balls INTEGER,
    strikes INTEGER,
 

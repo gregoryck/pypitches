@@ -11,15 +11,15 @@ import re
 import sys
 
 
-def process(filename, flags):
-    with open(filename) as handle:
-        for line in handle:
+def process(filename, flags,outhandle=sys.stdout):
+    with open(filename) as inhandle:
+        for line in inhandle:
             line = line.rstrip()
             match = re.search("--:(\S+)$", line)
             if match is None:
-                print line
+                print >>outhandle, line
             elif match.groups()[0] in flags:
-                print line
+                print >>outhandle, line
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
