@@ -21,7 +21,8 @@ def start_sqlite(sqlite_file, tables_file):
 
 def start_postgres(user, password):
     db = settings['postgres_db']
-    engine = create_engine("postgres://%s:%s@localhost/%s" % (user, password, db), echo=False)
+    engine = create_engine("postgres://%s:%s@localhost/%s" % 
+                           (user, password, db), echo=False)
     metadata = MetaData(engine)
     Session = sessionmaker(bind=engine)
     return Session, metadata

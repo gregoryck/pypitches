@@ -9,6 +9,15 @@ begin;
 --drop table player;
 --drop table team;
 
+create function normalized_speed(integer) returns float as
+$normalized_speed$
+declare
+    id alias for $1;
+begin
+
+end;
+$normalized_speed$ language pgpsql;
+
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
    name VARCHAR(128),
