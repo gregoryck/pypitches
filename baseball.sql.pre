@@ -9,14 +9,37 @@ begin;
 --drop table player;
 --drop table team;
 
-create function normalized_speed(integer) returns float as
-$normalized_speed$
-declare
-    id alias for $1;
-begin
+create language plpgsql;
 
+create or replace function normalized_speed(integer,integer) returns float as
+$normalized_speed$
+-- takes the primary key of a pitch.
+-- returns that pitch's speed normalized to the range [0,1.0]
+-- where 0 is the slowest and 1.0 the fastest pitch
+-- thrown by that pitcher
+
+-- using the very slowest pitch is bad because over the course of a season,
+-- that's probably an intentional ball: very slow indeed.
+-- What's the slowest "in anger" pitch?
+-- want to take 10th percentile probably
+
+declare
+    get_game_pk alias for $1;
+    get_num alias for $2;
+    start_speed_to_normalize float;
+    pitcher_pk integer;
+    fastest float;
+    slowest float;
+begin
+        select start_speed, pitcher from pitch where game_pk=get_game_pk
+        and id = get_num into start_speed_to_normalize, pitcher_pk;
+        select max(start_speed) from pitch where pitcher = pitcher_pk
+            into fastest;
+        select min(start_speed) from pitch where pitcher = pitcher_pk
+            into slowest;
+        return (start_speed_to_normalize - slowest) / (fastest - slowest);
 end;
-$normalized_speed$ language pgpsql;
+$normalized_speed$ language 'plpgsql';
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
