@@ -16,7 +16,7 @@ declare
 begin
 
 end;
-$normalized_speed$ language pgpsql;
+$normalized_speed$ language pgsql;
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,

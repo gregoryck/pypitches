@@ -16,7 +16,7 @@ import sys
 from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
 import pdb
-import yaml
+import json
 
 def postponed(gamedir):
    """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
@@ -141,7 +141,7 @@ def game_pk_map():
 
 if __name__ == "__main__":
    outfilename = sys.argv[1]
-   yaml.dump(dict(game_pk_map()), open(outfilename, "w"), default_flow_style=False, )
+   json.dump(dict(game_pk_map()), open(outfilename, "w"))
 
 
 
