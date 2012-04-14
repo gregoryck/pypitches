@@ -8,7 +8,8 @@ import os.path
 import os
 import sys
 import pdb
-import yaml
+import yaml #use this for hand-written configs
+import json #use this for generated files
 from sqlalchemy.exc import IntegrityError
 from dateutil import parser
 import pypitches as baseball
@@ -209,11 +210,11 @@ def load_games(session, gamedirs_file):
    session.commit()
 
 def get_keys_and_dirs(gamedirs_file):
-   """Takes the name of a yaml file mapping game primary keys to lists of directories for those games.
+   """Takes the name of a json file mapping game primary keys to lists of directories for those games.
 
    Yields pairs of (key, [list of dirs])
    """
-   for key, dirs in yaml.load(open(gamedirs_file)).iteritems():
+   for key, dirs in json.load(open(gamedirs_file)).iteritems():
       yield key, dirs
 
 if __name__ == "__main__":

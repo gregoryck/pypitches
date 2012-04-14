@@ -1,4 +1,4 @@
-gamedirs_file: gamedirs.2011.yaml
+gamedirs_file: gamedirs.2011.json
 #engine: sqlite
 #sqlite_file: baseball.sqlite
 engine: postgres

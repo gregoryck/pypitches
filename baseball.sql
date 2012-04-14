@@ -9,6 +9,7 @@ begin;
 --drop table player;
 --drop table team;
 
+<<<<<<< HEAD:baseball.sql
 
 create temp table ranges 
 
@@ -28,6 +29,16 @@ create temp table ranges
 
  alter table ranges add FOREIGN KEY (pitcher) references player (id);
  alter table ranges add PRIMARY KEY (pitcher);
+=======
+create function normalized_speed(integer) returns float as
+$normalized_speed$
+declare
+    id alias for $1;
+begin
+
+end;
+$normalized_speed$ language pgsql;
+>>>>>>> smaller:baseball.sql
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
