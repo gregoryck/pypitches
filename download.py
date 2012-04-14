@@ -18,8 +18,8 @@ start_dir = "/components/game/mlb/"
 #start_dir = "testbaseball/"
 
 # Patterns to grab only specific years, months, days, or games
-year_pattern  = "year_2011" #only want this one year
-month_pattern = "month_0" 
+year_pattern  = "year_2012" #only want this one year
+month_pattern = "month_04" 
 day_pattern   = "day_"
 game_pattern  = "gid_"
 patterns = [year_pattern, month_pattern, day_pattern, game_pattern]

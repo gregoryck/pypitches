@@ -9,6 +9,26 @@ begin;
 --drop table player;
 --drop table team;
 
+
+create temp table ranges 
+
+--    FOREIGN KEY (pitcher) references player (id),
+--    primary key (pitcher)
+    as 
+    select pitch.pitcher, 
+    avg(start_speed) - 2*stddev(start_speed) as low_speed,
+    avg(start_speed) + 2 * stddev(start_speed) as high_speed,
+    (avg(pfx_x * lefty(p_throws)) - 2*stddev(pfx_x * lefty(p_throws))) as low_pfx_x,
+    (avg(pfx_x * lefty(p_throws)) + 2*stddev(pfx_x * lefty(p_throws))) as high_pfx_x,
+    avg(pfx_z) - 2*stddev(pfx_z) as low_pfx_z,
+    avg(pfx_z) + 2*stddev(pfx_z) as high_pfx_z
+    from pitch 
+    join atbat on pitch.atbatnum = atbat.num and pitch.game_pk = atbat.game_pk
+    group by pitch.pitcher;
+
+ alter table ranges add FOREIGN KEY (pitcher) references player (id);
+ alter table ranges add PRIMARY KEY (pitcher);
+
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
    name VARCHAR(128),
@@ -85,7 +105,7 @@ CREATE TABLE atbat (
 
    game_pk INTEGER NOT NULL,
    date VARCHAR(32),
-
+   
    FOREIGN KEY (game_pk) REFERENCES game (game_pk),
    FOREIGN KEY (batter) REFERENCES player (id),
    FOREIGN KEY (pitcher) REFERENCES player (id),
@@ -93,15 +113,13 @@ CREATE TABLE atbat (
 
 );
 
-CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
-    INCREMENT BY 1 --:POSTGRES
-    NO MAXVALUE --:POSTGRES
-    NO MINVALUE --:POSTGRES
-    CACHE 1; --:POSTGRES
+
 
 
 CREATE TABLE runner (
-   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --:POSTGRES
+
+   runner_pk INTEGER PRIMARY KEY, --SQLITE
+
 
    atbatnum INTEGER,
    game_pk INTEGER,
@@ -154,6 +172,7 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
+   payoff INTEGER, --:SQLITE
    payoff BOOLEAN, --:POSTGRES
    balls INTEGER,
    strikes INTEGER,

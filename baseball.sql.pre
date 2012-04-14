@@ -8,7 +8,7 @@ begin;
 --drop table stadium;
 --drop table player;
 --drop table team;
-
+{% if postgres %}
 create language plpgsql;
 
 create or replace aggregate avg(float)
@@ -68,6 +68,7 @@ begin
     end if;
 end;
 $lefty$ language 'plpgsql';
+{% endif %}
 
 create temp table ranges 
 
@@ -172,16 +173,21 @@ CREATE TABLE atbat (
 
 );
 
+{% if postgres %}
 CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
     INCREMENT BY 1 --:POSTGRES
     NO MAXVALUE --:POSTGRES
     NO MINVALUE --:POSTGRES
     CACHE 1; --:POSTGRES
+{% endif %}
 
 
 CREATE TABLE runner (
-   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --:POSTGRES
-   runner_pk INTEGER PRIMARY KEY, --:SQLITE
+{% if postgres %}
+   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --POSTGRES
+{% else %}
+   runner_pk INTEGER PRIMARY KEY, --SQLITE
+{% endif %}
 
    atbatnum INTEGER,
    game_pk INTEGER,

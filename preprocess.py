@@ -9,17 +9,15 @@
 
 import re
 import sys
+from jinja2 import Template
 
 
 def process(filename, flags,outhandle=sys.stdout):
+    flags_as_dict = dict([(flag, True) for flag in flags])
     with open(filename) as inhandle:
-        for line in inhandle:
-            line = line.rstrip()
-            match = re.search("--:(\S+)$", line)
-            if match is None:
-                print >>outhandle, line
-            elif match.groups()[0] in flags:
-                print >>outhandle, line
+        template = Template(inhandle.read())
+        outhandle.write(template.render(flags_as_dict))
+    
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
