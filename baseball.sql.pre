@@ -26,8 +26,6 @@ create or replace aggregate normalize(float)
 -- pfx_z
 -- release point?
 
-create or replace function normalize(
-
 create or replace function normalized_speed(get_game_pk integer, get_num integer) returns float as
 $normalized_speed$
 -- takes the primary key of a pitch.
@@ -70,6 +68,7 @@ end;
 $lefty$ language 'plpgsql';
 {% endif %}
 
+{% if ranges %}
 create temp table ranges 
 
 --    FOREIGN KEY (pitcher) references player (id),
@@ -88,6 +87,7 @@ create temp table ranges
 
  alter table ranges add FOREIGN KEY (pitcher) references player (id);
  alter table ranges add PRIMARY KEY (pitcher);
+{% endif %}
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
@@ -240,8 +240,11 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
-   payoff INTEGER, --:SQLITE
-   payoff BOOLEAN, --:POSTGRES
+   {% if postgres %}
+   payoff BOOLEAN, --POSTGRES
+   {% else %}
+   payoff INTEGER, --SQLITE
+   {% endif %}
    balls INTEGER,
    strikes INTEGER,
 
