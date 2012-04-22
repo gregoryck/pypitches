@@ -9,36 +9,8 @@ begin;
 --drop table player;
 --drop table team;
 
-<<<<<<< HEAD:baseball.sql
 
-create temp table ranges 
 
---    FOREIGN KEY (pitcher) references player (id),
---    primary key (pitcher)
-    as 
-    select pitch.pitcher, 
-    avg(start_speed) - 2*stddev(start_speed) as low_speed,
-    avg(start_speed) + 2 * stddev(start_speed) as high_speed,
-    (avg(pfx_x * lefty(p_throws)) - 2*stddev(pfx_x * lefty(p_throws))) as low_pfx_x,
-    (avg(pfx_x * lefty(p_throws)) + 2*stddev(pfx_x * lefty(p_throws))) as high_pfx_x,
-    avg(pfx_z) - 2*stddev(pfx_z) as low_pfx_z,
-    avg(pfx_z) + 2*stddev(pfx_z) as high_pfx_z
-    from pitch 
-    join atbat on pitch.atbatnum = atbat.num and pitch.game_pk = atbat.game_pk
-    group by pitch.pitcher;
-
- alter table ranges add FOREIGN KEY (pitcher) references player (id);
- alter table ranges add PRIMARY KEY (pitcher);
-=======
-create function normalized_speed(integer) returns float as
-$normalized_speed$
-declare
-    id alias for $1;
-begin
-
-end;
-$normalized_speed$ language pgsql;
->>>>>>> smaller:baseball.sql
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
@@ -183,8 +155,9 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
-   payoff INTEGER, --:SQLITE
-   payoff BOOLEAN, --:POSTGRES
+   
+   payoff INTEGER, --SQLITE
+   
    balls INTEGER,
    strikes INTEGER,
 
