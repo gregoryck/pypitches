@@ -18,33 +18,41 @@ from collections import defaultdict
 import pdb
 import json
 
-def postponed(gamedir):
-   """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
-   
-   Handling of suspended games is complicated. 
-   The game may be restarted from the first inning even if an inning or two was played, 
-   but I don't want to throw out that data.
-   """
-   status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
-   if status_ind == 'F':
-      return False
-   elif status_ind == 'P' or status_ind == 'PR':
-      return True
-   else:
-      # Can't stop here.  Check that at least one at-bat was actually played
-      atbats = BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat')
-      if len(atbats) == 0:
-         print >>sys.stderr, "Warning: status_ind=%s but no plate appearances took place for game %s" % (status_ind, gamedir)
-         return True
+def postponed(gamedir, ignore_missing_atbats_error=True):
+    """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
 
-class DuplicateGamesError(RuntimeError):
-   def __init__(self, gamedirs, descr):
-      self.gamedirs = gamedirs
-      self.value  = descr
-   def __str__(self):
-      return self.value + str(self.gamedirs)
-   
+    Handling of suspended games is complicated. 
+    The game may be restarted from the first inning even if an inning or two was played, 
+    but I don't want to throw out that data.
+    """
+    status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
+    if status_ind == 'F':
+        return False
+    elif status_ind == 'P' or status_ind == 'PR':
+        return True
+    else:
+        # Can't stop here.  Check that at least one at-bat was actually played
+        atbats = BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat')
+        if len(atbats) == 0:
+            if ignore_missing_atbats_error:
+                print >>sys.stderr, "Warning: status_ind=%s but no plate appearances took place for game %s" % (status_ind, gamedir)
+                return True
+            else:
+                raise MissingAtbatsError(gamedir, "status_ind=%s but no plate appearances took place" % (status_ind,))
+        else:
+            return False
 
+class GameDirError(RuntimeError):
+    def __init__(self, gamedirs, descr):
+        self.gamedirs = gamedirs
+        self.value  = descr
+    def __str__(self):
+        return self.value + str(self.gamedirs)
+   
+class DuplicateGamesError(GameDirError):
+    pass
+class MissingAtbatsError(GameDirError):
+    pass
 
 def loseinnings(gamedirs):
    """Look at a set of gamedirs from different dates.

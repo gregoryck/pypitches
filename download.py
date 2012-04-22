@@ -11,6 +11,7 @@ import os
 import re
 from BeautifulSoup import BeautifulSoup
 from urllib2 import urlopen
+import select_gamedirs
 
 server_string = "http://gdx.mlb.com"
 start_dir = "/components/game/mlb/"
@@ -47,29 +48,65 @@ def grab_page(url, filename=None):
       with open(filename, 'w') as handle:
          handle.write(html)
 
-def download_game(gamedir_url):
-   """Download the game in directory gamedir_url.
-   First grab the directory and get a listing.
-   Expect to find a few .xml files and an inning/ directory with an
-   inning_all.xml file"""
+#def check_extant(f):
+#    """Decorator
 
-   pbp_string = "inning/"
-   links_and_hrefs = dict(get_links(grab_page(gamedir_url), pbp_string))
-   if links_and_hrefs:
-      os.mkdir(pbp_string)
-      os.chdir(pbp_string)
-      grab_page(gamedir_url + "inning/inning_all.xml", "inning_all.xml")
-      os.chdir('..')
-      for xmlname in xml_wishlist:
-         grab_page(gamedir_url + xmlname, xmlname)
-   else:
-      print >>errorlog, gamedir_url, " no inning/ directory"
+def check_extant(dir):
+    """Inspect the contents of the local directory dir
+    to decide whether or not to proceed.
+    Check: 
+           does dir contain the subdir, innings
+           does dir contain boxscores.xml, game.xml, players.xml
+
+    Return True if we want to download again.
+    """
+    print "checking"
+    inning = os.path.join(dir, 'inning')
+    if os.path.exists(inning):
+        if not os.path.isdir(inning):
+            raise ValueError, "inning/ exists but is not a directory"
+        try:
+            pp = select_gamedirs.postponed(dir, False)
+        except select_gamedirs.MissingAtbatsError:
+            print >>sys.stderr, "Warning, will try again because not listed as posponed but no atbats found: %s" % (dir,)
+            return True
+        return False # if it was really postponed, 
+                     # or if it's not postponed and we have data
+    else:
+        return True
+
+#@check_extant
+def download_game(gamedir_url, check_extant=check_extant):
+    """Download the game in directory gamedir_url.
+    First grab the directory and get a listing.
+    Expect to find a few .xml files and an inning/ directory with an
+    inning_all.xml file.
+   
+    Optionally, take a function to decide whether to proceed"""
+
+    pbp_string = "inning/"
+    if not check_extant("."):
+        print >>errorlog, gamedir_url, "skipping because already have good data"
+        return
+    links_and_hrefs = dict(get_links(grab_page(gamedir_url), pbp_string))
+    if links_and_hrefs:
+        os.mkdir(pbp_string)
+        os.chdir(pbp_string)
+        grab_page(gamedir_url + "inning/inning_all.xml", "inning_all.xml")
+        os.chdir('..')
+        for xmlname in xml_wishlist:
+            grab_page(gamedir_url + xmlname, xmlname)
+    else:
+        print >>errorlog, gamedir_url, " no inning/ directory"
 
 
 
 def navigate_dirs(start_url, patterns, fun=download_game):
    """Navigate the directory structure on the server to find
-   game directories"""
+   game directories.
+   
+   When you hit the end of a pattern, call the function,
+   which defaults to download_game"""
    if len(patterns) > 0:
       for linkname, href in get_links(grab_page(start_url), patterns[0]):
          newdir = href.split("/")[-2]
