@@ -89,6 +89,10 @@ create temp table ranges
  alter table ranges add PRIMARY KEY (pitcher);
 {% endif %}
 
+CREATE TABLE sourcefile (
+    downloaded date,
+);
+
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
    name VARCHAR(128),

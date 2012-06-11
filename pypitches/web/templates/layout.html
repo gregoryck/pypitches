@@ -1,0 +1,29 @@
+<!doctype html>
+<title>{% block title %}PyPitches{% endblock %}</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>MiniTwit</h1>
+  <div class=navigation>
+  {% if g.user %}
+    <a href="{{ url_for('controls') }}">controls</a> |
+    <a href="{{ url_for('status') }}">status</a> 
+  {% else %}
+    <a href="{{ url_for('status') }}">status</a> |
+  {% endif %}
+  </div>
+  {% with flashes = get_flashed_messages() %}
+    {% if flashes %}
+      <ul class=flashes>
+      {% for message in flashes %}
+        <li>{{ message }}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <div class=body>
+  {% block body %}{% endblock %}
+  </div>
+  <div class=footer>
+    PyPitches &mdash; A Flask Application
+  </div>
+</div>
