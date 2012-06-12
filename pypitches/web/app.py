@@ -11,6 +11,5 @@ def status():
 def controls():
     return render_template("controls.html")
 
-
 if __name__ == "__main__":
     app.run()

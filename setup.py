@@ -16,6 +16,8 @@ setup (
             "matplotlib (>=1.0.0)",
             "numpy (>=1.6.1)",
             "flask (>=0.8)",
+            "ipython (>=0.12)",
+            "PyYAML (=3.10)
             ],
         )
 
