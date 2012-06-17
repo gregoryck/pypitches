@@ -17,7 +17,9 @@ setup (
             "numpy (>=1.6.1)",
             "flask (>=0.8)",
             "ipython (>=0.12)",
-            "PyYAML (=3.10)
+            "PyYAML (>=3.10)",
+            "nose (>=1.1.2)",
+            "coverage (>=3.5.2)",
             ],
         )
 
