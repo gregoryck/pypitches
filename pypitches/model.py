@@ -1,126 +1,220 @@
-from sqlalchemy import *
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Integer, String, Column, DateTime, Float, Boolean, Text, CHAR, ForeignKey, Date
+from sqlalchemy.orm import relationship, backref
 
-from sqlalchemy.orm import *
 import yaml
 import os
 import pdb
-import sqlite3
 
 
-def start_sqlite(sqlite_file, tables_file):
-   if not os.path.exists(sqlite_file):
-      # Create sqlite file and create tables 
-      conn = sqlite3.connect(sqlite_file)
-      c = conn.cursor()
-      c.executescript(''.join(list(open(tables_file))))
-      conn.close()
-   engine = create_engine("sqlite:///%s" % (sqlite_file), echo=False)
-   metadata = MetaData(engine)
-   Session = sessionmaker(bind=engine)
-   return Session, metadata
+settings = None #To be set by init()
+
+def init(settingsfilename='baseball.yaml'):
+    """Fire up the database and initialize some
+    global settings (yeah...)
+    Returns a dictionary of settings and an SQLAlchemy Session()
+    """
+ 
+    global settings # Hmm...
+    global session  # What's the nicest way to set something module-wide?
+    settings = yaml.load(file(settingsfilename))
+    if settings['engine'] == 'postgres':
+        Session, metadata = start_postgres(settings['postgres_user'], settings['postgres_password'])
+    elif settings['engine'] == 'sqlite':
+        Session, metadata =start_sqlite(settings['sqlite_file'], settings['tables_file'])
+    else:
+        raise ValueError, "What is settings['engine']:", settings['engine']
+    map_orm(metadata)
+    session = Session()
+    return settings, session 
 
 def start_postgres(user, password):
     db = settings['postgres_db']
     engine = create_engine("postgres://%s:%s@localhost/%s" % 
                            (user, password, db), echo=False)
     metadata = MetaData(engine)
-    Session = sessionmaker(bind=engine)
+    Session = scoped_session(sessionmaker(bind=engine))
     return Session, metadata
 
-settings = None #To be set by init()
-session = None
-mappers_mapped = False
 
-def map_orm(metadata):
-    global mappers_mapped
-    if not mappers_mapped:
-        mappers_mapped = True
-        playeringame_table = Table('playeringame', metadata, autoload=True)
-        atbat_table = Table('atbat', metadata, autoload=True)
-        game_table = Table('game', metadata, autoload=True)
-        pitch_table = Table('pitch', metadata, autoload=True)
-        player_table = Table('player', metadata, autoload=True)
-        #umpire_table = Table('umpire', metadata, autoload=True)
-        runner_table = Table('runner', metadata, autoload=True)
-        team_table = Table('team', metadata, autoload=True)
-        stadium_table = Table('stadium', metadata, autoload=True)
-        mapper(Player, player_table)
-        #mapper(Umpire, umpire_table)
-        mapper(Game, game_table)
-        mapper(Team, team_table)
-        mapper(Stadium, stadium_table)
-        mapper(PlayerInGame, playeringame_table, 
-              properties={'player': relation(Player, backref="ingames"),
-                  'game'  : relation(Game, backref="players"),})
-        mapper(AtBat, atbat_table,
-                      properties={'game':    relation(Game, backref='atbats'),
-                          'pitchedby': relation(Player, backref='atbats_pitching',
-                                            primaryjoin=(atbat_table.c.pitcher==player_table.c.id)),
-                        'wasbatter' : relation(Player, backref='atbats_hitting',
-                                            primaryjoin=(atbat_table.c.batter==player_table.c.id)),
-                        })
-        mapper(Runner, runner_table,
-            properties={'game': relation(Game),
-                        'player': relation(Player, backref='baserunning'),
-                        'atbat': relation(AtBat, backref='runners', 
-                           primaryjoin=and_(atbat_table.c.num == runner_table.c.atbatnum ,
-                              atbat_table.c.game_pk == runner_table.c.game_pk),
-                              )})
+#        mapper(PlayerInGame, playeringame_table, 
+#              properties={'player': relation(Player, backref="ingames"),
+#                  'game'  : relation(Game, backref="players"),})
+#        mapper(AtBat, atbat_table,
+#                      properties={'game':    relation(Game, backref='atbats'),
+#                          'pitchedby': relation(Player, backref='atbats_pitching',
+#                                            primaryjoin=(atbat_table.c.pitcher==player_table.c.id)),
+#                        'wasbatter' : relation(Player, backref='atbats_hitting',
+#                                            primaryjoin=(atbat_table.c.batter==player_table.c.id)),
+#                        })
+#        mapper(Runner, runner_table,
+#            properties={'game': relation(Game),
+#                        'player': relation(Player, backref='baserunning'),
+#                        'atbat': relation(AtBat, backref='runners', 
+#                           primaryjoin=and_(atbat_table.c.num == runner_table.c.atbatnum ,
+#                              atbat_table.c.game_pk == runner_table.c.game_pk),
+#                              )})
+#
+#        mapper(Pitch, pitch_table,
+#            properties={'pitchedby': relation(Player, backref='pitches',
+#                                            primaryjoin=(pitch_table.c.pitcher==player_table.c.id)),
+#                        'game'   : relation(Game,   uselist=False, backref='pitches', primaryjoin=(pitch_table.c.game_pk == game_table.c.game_pk), foreign_keys=[game_table.c.game_pk]),
+#                        'atbat'  : relation(AtBat,  backref='pitches',
+#                           primaryjoin=and_(atbat_table.c.num == pitch_table.c.atbatnum ,
+#                                        atbat_table.c.game_pk == pitch_table.c.game_pk),
+#                           ),})
 
-        mapper(Pitch, pitch_table,
-            properties={'pitchedby': relation(Player, backref='pitches',
-                                            primaryjoin=(pitch_table.c.pitcher==player_table.c.id)),
-                        'game'   : relation(Game,   uselist=False, backref='pitches', primaryjoin=(pitch_table.c.game_pk == game_table.c.game_pk), foreign_keys=[game_table.c.game_pk]),
-                        'atbat'  : relation(AtBat,  backref='pitches',
-                           primaryjoin=and_(atbat_table.c.num == pitch_table.c.atbatnum ,
-                                        atbat_table.c.game_pk == pitch_table.c.game_pk),
-                           ),})
+Base = declarative_base()
+
+class Pitch(Base):
+    __tablename__ = "pitch"
+
+    des = Column(String) 
+    type = Column(CHAR(1))
+    id = Column(Integer, primary_key=True) #INTEGER,
+    x = Column(Float) #FLOAT,
+    y = Column(Float) #FLOAT,
+    sv_id = Column(String) #VARCHAR(128),
+    start_speed = Column(Float)
+    end_speed  = Column(Float)
+    sz_top = Column(Float) 
+    sz_bot = Column(Float)
+    pfx_x = Column(Float)
+    pfx_z = Column(Float)
+    px = Column(Float)
+    pz = Column(Float)
+    x0 = Column(Float)
+    y0 = Column(Float)
+    z0 = Column(Float)
+    vx0 = Column(Float)
+    vy0 = Column(Float)
+    vz0 = Column(Float)
+    ax = Column(Float)
+    ay = Column(Float)
+    az = Column(Float)
+    break_y = Column(Float)
+    break_angle = Column(Float)
+    break_length = Column(Float)
+    pitch_type = Column(String)
+    type_confidence = Column(Float)
+    spin_dir = Column(Float)
+    spin_rate = Column(Float)
+    nasty = Column(Integer)
+    on_1b = Column(Integer, ForeignKey('player.id'))
+    on_2b = Column(Integer, ForeignKey('player.id'))
+    on_3b = Column(Integer, ForeignKey('player.id'))
+    payoff = Column(Boolean)
+    balls = Column(Integer)
+    strikes = Column(Integer)
+ 
+    game_pk          = Column(Integer, ForeignKey('game.id'), primary_key=True )
+    pitcher          = Column(Integer, ForeignKey('player.id'))
+    batter           = Column(Integer, ForeignKey('player.id'))
+    atbatnum         = Column(Integer, ForeignKey('atbat.num'))
+    pitchedby        = relationship("Player", primaryjoin="Pitch.pitcher==Player.id")
+    seenby        = relationship("Player", primaryjoin="Pitch.batter==Player.id")
+ 
+
+class Game(Base):
+    __tablename__ = "game"
+    game_pk        = Column(Integer, primary_key=True)
+    away_team_code = Column(CHAR(3), ForeignKey('team.code'))
+    home_team_code = Column(CHAR(3), ForeignKey('team.code'))
+    away_fname     = Column(Text)
+    home_fname     = Column(Text)
+    away_sname     = Column(Text)
+    home_sname     = Column(Text)
+    stadium        = Column(Integer)
+    date           = Column(Date)
 
 
-def init(settingsfilename='baseball.yaml'):
-   """Fire up the database and initialize some
-   global settings (yeah...)
-   Returns a dictionary of settings and an SQLAlchemy Session()
-   """
+class Team(Base):
+    __tablename__     = "team"
+    id                = Column(Integer)
+    code              = Column(CHAR(3), primary_key=True)
+    name              = Column(Text)
+    name_full         = Column(Text)
+    name_brief        = Column(Text)
+class Stadium(Base):
+    __tablename__     = "stadium"
 
-   global settings # Hmm...
-   global session  # What's the nicest way to set something module-wide?
-   settings = yaml.load(file(settingsfilename))
-   if settings['engine'] == 'postgres':
-      Session, metadata = start_postgres(settings['postgres_user'], settings['postgres_password'])
-   elif settings['engine'] == 'sqlite':
-      Session, metadata =start_sqlite(settings['sqlite_file'], settings['tables_file'])
-   else:
-      raise ValueError, "What is settings['engine']:", settings['engine']
-   map_orm(metadata)
-   session = Session()
-   return settings, session 
+    id                = Column(Integer, primary_key=True)
+    name                = Column(Text)
+    location                = Column(Text)
+class Player(Base):
+    __tablename__    = "player"
+    id               = Column(Integer, primary_key=True)
+    first               = Column(Text)
+    last               = Column(Text)
+    boxname               = Column(Text)
+    rl                = Column(CHAR(1))
+class PlayerInGame(Base):
+    __tablename__    = "playeringame"
+    id               = Column(Integer, ForeignKey('player.id'), primary_key=True)
+    game_pk          = Column(Integer, ForeignKey('game.game_pk'), primary_key=True)
+    num               = Column(Integer)
+    position          = Column(CHAR(2)) #starting position?
+    bat_order        = Column(Integer)
+    game_position    = Column(CHAR(2)) #wtf?
+    avg              = Column(Float)
+    era              = Column(Float)
+    hr               = Column(Integer)
+    rbi              = Column(Integer)
+    wins             = Column(Integer)
+    wins             = Column(Integer)
+    wins             = Column(Integer)
+    losses             = Column(Integer)
+    
+class AtBat(Base):
+    __tablename__    = "atbat"
 
-class Pitch(object):
-   def __init__(self):
-      pass
-class Game(object):
-   def __init__(self):
-      pass
-class Team(object):
-   def __init__(self):
-      pass
-class Stadium(object):
-   def __init__(self):
-      pass
-class Player(object):
-   def __init__(self):
-      pass
-class Umpire(object):
-   def __init__(self):
-      pass
-class PlayerInGame(object):
-   def __init__(self):
-      pass
-class AtBat(object):
-   def __init__(self):
-      pass
-class Runner(object):
-   def __init__(self):
-      pass
+
+    inning           = Column(Integer)
+    num              = Column(Integer, primary_key=True)
+ 
+    game_pk              = Column(Integer, ForeignKey('game.game_pk'), primary_key=True)
+    b           = Column(Integer)
+    s           = Column(Integer)
+    stand       = Column(CHAR(1))
+    p_throws       = Column(CHAR(1))
+    inning           = Column(Integer)
+    batter           = Column(Integer, ForeignKey('player.id'))
+    pitcher           = Column(Integer, ForeignKey('player.id'))
+    b_height         = Column(Text)
+    des         = Column(Text)
+    event         = Column(Text)
+    brief_event         = Column(Text)
+    date              = Column(Date)
+ 
+    game = relationship("Game", backref=backref("atbat", order_by=num))
+    pitchedby = relationship("Player", primaryjoin="AtBat.pitcher==Player.id")
+    wasbatter = relationship("Player", primaryjoin="AtBat.batter==Player.id")
+   
+
+class Runner(Base):
+    __tablename__     = "runner"
+    runner_pk         = Column(Integer, primary_key=True)
+    atbatnum          = Column(Integer, ForeignKey('atbat.num'))
+    game_pk          = Column(Integer, ForeignKey('game.game_pk'))
+    id               = Column(Integer, ForeignKey('player.id'))
+    start             = Column(Text)
+    end              = Column(Text)
+    score             = Column(CHAR(1))
+    rbi             = Column(CHAR(1))
+    earned             = Column(CHAR(1))
+    event             = Column(Text)
+class GameDir(Base):
+    __tablename__     = "gamedir"
+    
+    id                 = Column(Integer, primary_key=True)
+    local_copy         = Column(Boolean)
+    url                = Column(Text)
+    path                = Column(Text)
+    status             = Column(Text)
+    status_long        = Column(Text)
+    loaded             = Column(Boolean)
+    game_pk            = Column(Integer)
+
+
 

@@ -1,97 +1,14 @@
 begin;
 
---drop table pitch;
---drop table runner;
---drop table atbat;
---drop table playeringame;
---drop table game;
---drop table stadium;
---drop table player;
---drop table team;
-{% if postgres %}
-create language plpgsql;
-
-create or replace aggregate avg(float)
-(
-sfunc = accu
-);
-
-create or replace aggregate normalize(float)
-(
-    sfunc=array_ap
-
--- want to normalize...
--- start_speed
--- pfx_x (flip for sinisters)
--- pfx_z
--- release point?
-
-create or replace function normalized_speed(get_game_pk integer, get_num integer) returns float as
-$normalized_speed$
--- takes the primary key of a pitch.
--- returns that pitch's speed normalized to the range [0,1.0]
--- where 0 is the slowest and 1.0 the fastest pitch
--- thrown by that pitcher
-
--- using the very slowest pitch is bad because over the course of a season,
--- that's probably an intentional ball: very slow indeed.
--- What's the slowest "in anger" pitch?
--- want to take 10th percentile probably
-
-declare
-    start_speed_to_normalize float;
-    pitcher_pk integer;
-    fastest float;
-    slowest float;
-begin
-    
-        select start_speed, pitcher from pitch where game_pk=get_game_pk
-        and id = get_num into start_speed_to_normalize, pitcher_pk;
-        select avg(start_speed) + 2 * stddev(start_speed) from pitch where pitcher = pitcher_pk
-            into fastest;
-        select avg(start_speed) - 2*stddev(start_speed) from pitch where pitcher = pitcher_pk
-            into slowest;
-        return 2* (start_speed_to_normalize - slowest) / (fastest - slowest) - 0.5 ;
-end;
-$normalized_speed$ language 'plpgsql';
-
-create or replace function lefty(p_throws char) 
-returns integer as
-$lefty$
-begin
-    if p_throws = 'L' then
-        return 1;
-    else
-        return -1;
-    end if;
-end;
-$lefty$ language 'plpgsql';
-{% endif %}
-
-{% if ranges %}
-create temp table ranges 
-
---    FOREIGN KEY (pitcher) references player (id),
---    primary key (pitcher)
-    as 
-    select pitch.pitcher, 
-    avg(start_speed) - 2*stddev(start_speed) as low_speed,
-    avg(start_speed) + 2 * stddev(start_speed) as high_speed,
-    (avg(pfx_x * lefty(p_throws)) - 2*stddev(pfx_x * lefty(p_throws))) as low_pfx_x,
-    (avg(pfx_x * lefty(p_throws)) + 2*stddev(pfx_x * lefty(p_throws))) as high_pfx_x,
-    avg(pfx_z) - 2*stddev(pfx_z) as low_pfx_z,
-    avg(pfx_z) + 2*stddev(pfx_z) as high_pfx_z
-    from pitch 
-    join atbat on pitch.atbatnum = atbat.num and pitch.game_pk = atbat.game_pk
-    group by pitch.pitcher;
-
- alter table ranges add FOREIGN KEY (pitcher) references player (id);
- alter table ranges add PRIMARY KEY (pitcher);
-{% endif %}
-
-CREATE TABLE sourcefile (
-    downloaded date,
-);
+DROP TABLE IF EXISTS Pitch;
+DROP TABLE IF EXISTS Runner;
+DROP TABLE IF EXISTS Atbat;
+DROP TABLE IF EXISTS Playeringame;
+DROP TABLE IF EXISTS Game;
+DROP TABLE IF EXISTS Stadium;
+DROP TABLE IF EXISTS Player;
+DROP TABLE IF EXISTS Team;
+DROP TABLE IF EXISTS gamedir;
 
 CREATE TABLE stadium (
    id INTEGER PRIMARY KEY,
@@ -276,5 +193,119 @@ CREATE INDEX game_home on game (home_team_code);
 CREATE INDEX pitch_pitcher on pitch (pitcher);
 CREATE INDEX pitch_batter on pitch (batter);
 CREATE INDEX pitch_atbat on pitch (game_pk, atbatnum);
+
+
+
+
+-- administration tables_file
+CREATE TABLE gamedir (
+    gamedir_id INTEGER,
+    local_copy BOOLEAN NOT NULL DEFAULT FALSE,
+    url TEXT,
+    dirname TEXT,
+    status TEXT NOT NULL,      -- or enum? final, postponed, error, what else?
+    status_long TEXT,      -- exactly what's the problem officer
+    loaded BOOLEAN NOT NULL DEFAULT FALSE,
+    game_pk INTEGER,
+
+    FOREIGN KEY (game_pk) REFERENCES game(game_pk),
+    PRIMARY KEY (gamedir_id)
+);
+{% if postgres %}
+create or replace language plpgsql;
+
+--create or replace aggregate avg(float)
+--(
+--sfunc = accu
+--);
+
+--create or replace aggregate normalize(float)
+--(
+--    sfunc=array_ap
+
+-- want to normalize...
+-- start_speed
+-- pfx_x (flip for sinisters)
+-- pfx_z
+-- release point?
+
+CREATE OR REPLACE FUNCTION normalized_speed(get_game_pk INTEGER, get_num INTEGER) RETURNS FLOAT AS
+$normalized_speed$
+-- takes the primary key of a pitch.
+-- returns that pitch's speed normalized to the range [0,1.0]
+-- where 0 is the slowest and 1.0 the fastest pitch
+-- thrown by that pitcher
+
+-- using the very slowest pitch is bad because over the course of a season,
+-- that's probably an intentional ball: very slow indeed.
+-- What's the slowest "in anger" pitch?
+-- want to take 10th percentile probably
+
+declare
+    start_speed_to_normalize float;
+    pitcher_pk INTEGER;
+    fastest float;
+    slowest float;
+begin
+    
+        select start_speed, pitcher from pitch where game_pk=get_game_pk
+        and id = get_num into start_speed_to_normalize, pitcher_pk;
+        select avg(start_speed) + 2 * stddev(start_speed) from pitch where pitcher = pitcher_pk
+            into fastest;
+        select avg(start_speed) - 2*stddev(start_speed) from pitch where pitcher = pitcher_pk
+            into slowest;
+        return 2* (start_speed_to_normalize - slowest) / (fastest - slowest) - 0.5 ;
+end;
+$normalized_speed$ language 'plpgsql';
+
+CREATE OR REPLACE FUNCTION lefty(p_throws char) 
+RETURNS INTEGER AS
+$lefty$
+BEGIN
+    IF p_throws = 'L' THEN
+        RETURN 1;
+    ELSE
+        RETURN -1;
+    END IF;
+END;
+$lefty$ LANGUAGE 'plpgsql';
+
+{% endif %}
+
+{% if ranges %}
+--CREATE TABLE ranges (
+--    low_speed FLOAT,
+--    high_speed FLOAT,
+--    low_pfx_x FLOAT,
+--    high_pfx_x FLOAT,
+--    low_pfx_x FLOAT,
+--    high_pfx_x FLOAT,
+--    pitcher_id INTEGER,
+--
+--    PRIMARY KEY (pitcher_id),
+--    FOREIGN KEY (pitcher_id) REFERENCES player (id)
+--);
+--
+
+
+
+
+--    FOREIGN KEY (pitcher) references player (id),
+--    primary key (pitcher)
+CREATE VIEW RANGES AS 
+    SELECT pitch.pitcher, 
+    avg(start_speed) - 2*stddev(start_speed) as low_speed,
+    avg(start_speed) + 2 * stddev(start_speed) as high_speed,
+    (avg(pfx_x * lefty(p_throws)) - 2*stddev(pfx_x * lefty(p_throws))) as low_pfx_x,
+    (avg(pfx_x * lefty(p_throws)) + 2*stddev(pfx_x * lefty(p_throws))) as high_pfx_x,
+    avg(pfx_z) - 2*stddev(pfx_z) as low_pfx_z,
+    avg(pfx_z) + 2*stddev(pfx_z) as high_pfx_z
+    FROM pitch 
+    join atbat on pitch.atbatnum = atbat.num and pitch.game_pk = atbat.game_pk
+    GROUP BY pitch.pitcher;
+
+{% endif %}
+
+
 
 commit;

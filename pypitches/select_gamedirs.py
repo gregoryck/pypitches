@@ -4,43 +4,40 @@
 # Some games have an inning_all.xml but were still postponed
 # Some games could be broken across 2 dates because they were suspended
 
-# This script generates a list of "good" directories. 
-# load.py will depend on that list
+# This script examines all directories. 
+# It writes that list to the db
 
-# usage 
-# (to create gamedirs.yaml)
-# python select_gamedirs.py gamedirs.yaml
 
 import os
 import sys
 from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
 import pdb
-import json
 
-def postponed(gamedir, ignore_missing_atbats_error=True):
+def classify_dir(callback, gamedir, files):
     """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
+
+    Intended for use through os.path.walk, so first arg is a callback function. 
 
     Handling of suspended games is complicated. 
     The game may be restarted from the first inning even if an inning or two was played, 
     but I don't want to throw out that data.
     """
+    if 'boxscore' not in files:
+        return #don't care about other dirs
     status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
     if status_ind == 'F':
-        return False
+        callback(gamedir, 'final')
     elif status_ind == 'P' or status_ind == 'PR':
-        return True
+        callback(gamedir, 'postponed')
     else:
         # Can't stop here.  Check that at least one at-bat was actually played
         atbats = BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat')
         if len(atbats) == 0:
-            if ignore_missing_atbats_error:
-                print >>sys.stderr, "Warning: status_ind=%s but no plate appearances took place for game %s" % (status_ind, gamedir)
-                return True
-            else:
-                raise MissingAtbatsError(gamedir, "status_ind=%s but no plate appearances took place" % (status_ind,))
+            #raise MissingAtbatsError(gamedir, "status_ind=%s but no plate appearances took place" % (status_ind,))
+            callback(gamedir, 'error', "status_ind=%s but no plate appearances took place" % (status_ind,))
         else:
-            return False
+            callback(gamedir, 'maybe_partial', 'status_ind={0}'.format(status_ind))
 
 class GameDirError(RuntimeError):
     def __init__(self, gamedirs, descr):
@@ -146,6 +143,19 @@ def game_pk_map():
    for game_pk, directories in dirs:
       yield game_pk, directories
 
+
+def classify_local_dirs(rootdir):
+
+    session = model.Session()
+    def add_gamedir(gamedir, status, status_long=None):
+        new_gamedir = GameDir()
+        new_gamedir.dirname = gamedir
+        new_gamedir.status = status
+        new_gamedir.status_long = status_long
+        new_gamedir.local_copy = True
+        session.add(new_gamedir)
+    os.path.walk(rootdir, classify_dir, model.add_gamedir)
+    session.commit()
 
 if __name__ == "__main__":
    outfilename = sys.argv[1]
