@@ -33,7 +33,10 @@ def teardown():
 def test():
     import pypitches
     from pypitches import model
+    model.start_postgres('pypitches', 'pypitches', '')
     pitch = model.Pitch()
+    model.Session.add(pitch)
+    model.Session.commit()
     
 
 

@@ -202,7 +202,7 @@ CREATE TABLE gamedir (
     gamedir_id INTEGER,
     local_copy BOOLEAN NOT NULL DEFAULT FALSE,
     url TEXT,
-    dirname TEXT,
+    path TEXT,
     status TEXT NOT NULL,      -- or enum? final, postponed, error, what else?
     status_long TEXT,      -- exactly what's the problem officer
     loaded BOOLEAN NOT NULL DEFAULT FALSE,

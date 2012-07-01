@@ -1,7 +1,8 @@
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Integer, String, Column, DateTime, Float, Boolean, Text, CHAR, ForeignKey, Date
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Integer, String, Column, DateTime, Float, Boolean, Text, CHAR, Date
+from sqlalchemy import create_engine, ForeignKey
+from sqlalchemy.orm import relationship, backref, scoped_session, sessionmaker
 
 import yaml
 import os
@@ -9,61 +10,31 @@ import pdb
 
 
 settings = None #To be set by init()
+Session = None
 
-def init(settingsfilename='baseball.yaml'):
-    """Fire up the database and initialize some
-    global settings (yeah...)
-    Returns a dictionary of settings and an SQLAlchemy Session()
-    """
- 
-    global settings # Hmm...
-    global session  # What's the nicest way to set something module-wide?
-    settings = yaml.load(file(settingsfilename))
-    if settings['engine'] == 'postgres':
-        Session, metadata = start_postgres(settings['postgres_user'], settings['postgres_password'])
-    elif settings['engine'] == 'sqlite':
-        Session, metadata =start_sqlite(settings['sqlite_file'], settings['tables_file'])
-    else:
-        raise ValueError, "What is settings['engine']:", settings['engine']
-    map_orm(metadata)
-    session = Session()
-    return settings, session 
-
-def start_postgres(user, password):
-    db = settings['postgres_db']
+#def init(settingsfilename='baseball.yaml'):
+#    """Fire up the database and initialize some
+#    global settings (yeah...)
+#    Returns a dictionary of settings and an SQLAlchemy Session()
+#    """
+# 
+#    global settings # Hmm...
+#    settings = yaml.load(file(settingsfilename))
+#    if settings['engine'] == 'postgres':
+#        Session, metadata = start_postgres(settings['postgres_user'], settings['postgres_password'])
+#    elif settings['engine'] == 'sqlite':
+#        Session, metadata =start_sqlite(settings['sqlite_file'], settings['tables_file'])
+#    else:
+#        raise ValueError, "What is settings['engine']:", settings['engine']
+#    map_orm(metadata)
+#    session = Session()
+#    return settings, session 
+#
+def start_postgres(db, user, password):
+    global Session  # What's the nicest way to set something module-wide?
     engine = create_engine("postgres://%s:%s@localhost/%s" % 
                            (user, password, db), echo=False)
-    metadata = MetaData(engine)
     Session = scoped_session(sessionmaker(bind=engine))
-    return Session, metadata
-
-
-#        mapper(PlayerInGame, playeringame_table, 
-#              properties={'player': relation(Player, backref="ingames"),
-#                  'game'  : relation(Game, backref="players"),})
-#        mapper(AtBat, atbat_table,
-#                      properties={'game':    relation(Game, backref='atbats'),
-#                          'pitchedby': relation(Player, backref='atbats_pitching',
-#                                            primaryjoin=(atbat_table.c.pitcher==player_table.c.id)),
-#                        'wasbatter' : relation(Player, backref='atbats_hitting',
-#                                            primaryjoin=(atbat_table.c.batter==player_table.c.id)),
-#                        })
-#        mapper(Runner, runner_table,
-#            properties={'game': relation(Game),
-#                        'player': relation(Player, backref='baserunning'),
-#                        'atbat': relation(AtBat, backref='runners', 
-#                           primaryjoin=and_(atbat_table.c.num == runner_table.c.atbatnum ,
-#                              atbat_table.c.game_pk == runner_table.c.game_pk),
-#                              )})
-#
-#        mapper(Pitch, pitch_table,
-#            properties={'pitchedby': relation(Player, backref='pitches',
-#                                            primaryjoin=(pitch_table.c.pitcher==player_table.c.id)),
-#                        'game'   : relation(Game,   uselist=False, backref='pitches', primaryjoin=(pitch_table.c.game_pk == game_table.c.game_pk), foreign_keys=[game_table.c.game_pk]),
-#                        'atbat'  : relation(AtBat,  backref='pitches',
-#                           primaryjoin=and_(atbat_table.c.num == pitch_table.c.atbatnum ,
-#                                        atbat_table.c.game_pk == pitch_table.c.game_pk),
-#                           ),})
 
 Base = declarative_base()
 
@@ -108,7 +79,7 @@ class Pitch(Base):
     balls = Column(Integer)
     strikes = Column(Integer)
  
-    game_pk          = Column(Integer, ForeignKey('game.id'), primary_key=True )
+    game_pk          = Column(Integer, ForeignKey('game.game_pk'), primary_key=True )
     pitcher          = Column(Integer, ForeignKey('player.id'))
     batter           = Column(Integer, ForeignKey('player.id'))
     atbatnum         = Column(Integer, ForeignKey('atbat.num'))
