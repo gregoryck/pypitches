@@ -46,7 +46,8 @@ CREATE TABLE game (
    date VARCHAR(32),
 
    FOREIGN KEY (away_team_code) REFERENCES team (code),
-   FOREIGN KEY (home_team_code) REFERENCES team (code)
+   FOREIGN KEY (home_team_code) REFERENCES team (code),
+   FOREIGN KEY (stadium) REFERENCES stadium (id)
 );
 
 CREATE TABLE playeringame (
@@ -94,18 +95,18 @@ CREATE TABLE atbat (
 
 );
 
-{% if postgres %}
-CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
-    INCREMENT BY 1 --:POSTGRES
-    NO MAXVALUE --:POSTGRES
-    NO MINVALUE --:POSTGRES
-    CACHE 1; --:POSTGRES
-{% endif %}
+---{% if postgres %}
+---CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
+---    INCREMENT BY 1 --:POSTGRES
+---    NO MAXVALUE --:POSTGRES
+---    NO MINVALUE --:POSTGRES
+---    CACHE 1; --:POSTGRES
+---{% endif %}
 
 
 CREATE TABLE runner (
 {% if postgres %}
-   runner_pk INTEGER DEFAULT nextval('runner_runner_pk_seq') PRIMARY KEY, --POSTGRES
+   runner_pk SERIAL PRIMARY KEY,
 {% else %}
    runner_pk INTEGER PRIMARY KEY, --SQLITE
 {% endif %}
@@ -199,17 +200,17 @@ CREATE INDEX pitch_atbat on pitch (game_pk, atbatnum);
 
 -- administration tables_file
 CREATE TABLE gamedir (
-    gamedir_id INTEGER,
+    id SERIAL PRIMARY KEY,
     local_copy BOOLEAN NOT NULL DEFAULT FALSE,
-    url TEXT,
-    path TEXT,
+    url TEXT UNIQUE,
+    path TEXT UNIQUE,
     status TEXT NOT NULL,      -- or enum? final, postponed, error, what else?
     status_long TEXT,      -- exactly what's the problem officer
     loaded BOOLEAN NOT NULL DEFAULT FALSE,
     game_pk INTEGER,
 
     FOREIGN KEY (game_pk) REFERENCES game(game_pk),
-    PRIMARY KEY (gamedir_id)
+    UNIQUE(url, path)
 );
 {% if postgres %}
 create or replace language plpgsql;

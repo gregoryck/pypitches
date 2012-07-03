@@ -1,40 +1,7 @@
-import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Integer, String, Column, DateTime, Float, Boolean, Text, CHAR, Date
-from sqlalchemy import create_engine, ForeignKey
-from sqlalchemy.orm import relationship, backref, scoped_session, sessionmaker
-
-import yaml
-import os
-import pdb
-
-
-settings = None #To be set by init()
-Session = None
-
-#def init(settingsfilename='baseball.yaml'):
-#    """Fire up the database and initialize some
-#    global settings (yeah...)
-#    Returns a dictionary of settings and an SQLAlchemy Session()
-#    """
-# 
-#    global settings # Hmm...
-#    settings = yaml.load(file(settingsfilename))
-#    if settings['engine'] == 'postgres':
-#        Session, metadata = start_postgres(settings['postgres_user'], settings['postgres_password'])
-#    elif settings['engine'] == 'sqlite':
-#        Session, metadata =start_sqlite(settings['sqlite_file'], settings['tables_file'])
-#    else:
-#        raise ValueError, "What is settings['engine']:", settings['engine']
-#    map_orm(metadata)
-#    session = Session()
-#    return settings, session 
-#
-def start_postgres(db, user, password):
-    global Session  # What's the nicest way to set something module-wide?
-    engine = create_engine("postgres://%s:%s@localhost/%s" % 
-                           (user, password, db), echo=False)
-    Session = scoped_session(sessionmaker(bind=engine))
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base()
 
@@ -96,7 +63,7 @@ class Game(Base):
     home_fname     = Column(Text)
     away_sname     = Column(Text)
     home_sname     = Column(Text)
-    stadium        = Column(Integer)
+    stadium        = Column(Integer, ForeignKey('stadium.id'))
     date           = Column(Date)
 
 
@@ -184,8 +151,6 @@ class GameDir(Base):
     path                = Column(Text)
     status             = Column(Text)
     status_long        = Column(Text)
-    loaded             = Column(Boolean)
+    loaded             = Column(Boolean, default=False)
     game_pk            = Column(Integer)
-
-
 

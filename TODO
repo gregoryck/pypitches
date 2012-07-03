@@ -1,0 +1,36 @@
+---------------
+PyPitches To Do
+---------------
+
+Web stuff
+---------
+
+- matplotlib generates HTML5 canvas now? How?
+
+- compare to Dojo charting
+
+- an interface to drive updating
+
+
+Database stuff
+--------------
+
+- Record update events. Record raw files. Make permanent note of why some are rejected. Starting-off point for new update.
+
+- Faster loading. Indexless temporary table?
+
+- Table::
+    
+    downloads
+        file text
+        downloaded timestamp
+        accepted boolean
+        reject_reason integer foreign key references reject_reasons
+                      -- or just enum?
+
+
+
+Other
+-----
+
+- Semiauto updating.  web interface invokes Download.py -> load.py, no storing files inbetween. Machine knows what the last download and load were
