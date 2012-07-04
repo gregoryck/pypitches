@@ -153,4 +153,6 @@ class GameDir(Base):
     status_long        = Column(Text)
     loaded             = Column(Boolean, default=False)
     game_pk            = Column(Integer)
+    atbats             = Column(Integer)
+    innings            = Column(Integer)
 

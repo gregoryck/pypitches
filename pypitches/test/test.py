@@ -5,6 +5,7 @@ from os.path import split, join, abspath, curdir, dirname
 from subprocess import call
 from .. import preprocess
 from .. import model
+from ..model import GameDir
 
 pypitches_root = split(split(dirname(abspath(__file__)))[0])[0]
 sql_dir = join(pypitches_root, "sql")
@@ -67,6 +68,8 @@ def test_basics():
 def test_classify():
     from pypitches import select_gamedirs
     select_gamedirs.classify_local_dirs(static_dir)
+    assert model.Session.query(GameDir).count() == 4
+    assert model.Session.query(GameDir).filter(GameDir.status=='postponed').count() == 1
     
 
 

@@ -27,18 +27,22 @@ def classify_dir(callback, gamedir, files):
     if 'boxscore.xml' not in files:
         return #don't care about other dirs
     status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
+    game_pk = BeautifulStoneSoup(open(os.path.join(gamedir, 'game.xml'))).findAll('game')[0]['game_pk'] 
+    innings = len(BeautifulStoneSoup(open(os.path.join(gamedir, 'inning', 'inning_all.xml'))).findAll('inning'))
     if status_ind == 'F':
-        callback(gamedir, 'final')
+        callback(gamedir, status='final', pk=game_pk, innings=innings)
     elif status_ind == 'P' or status_ind == 'PR':
-        callback(gamedir, 'postponed')
+        callback(gamedir, status='postponed', pk=game_pk, innings=innings)
     else:
         # Can't stop here.  Check that at least one at-bat was actually played
-        atbats = BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat')
-        if len(atbats) == 0:
+        atbats = len(BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat'))
+        if atbats == 0:
             #raise MissingAtbatsError(gamedir, "status_ind=%s but no plate appearances took place" % (status_ind,))
-            callback(gamedir, 'error', "status_ind=%s but no plate appearances took place" % (status_ind,))
+            callback(gamedir, status='error', status_long="status_ind=%s but no plate appearances took place" % (status_ind,), 
+                     pk=game_pk, innings=innings, atbats=atbats)
         else:
-            callback(gamedir, 'maybe_partial', 'status_ind={0}'.format(status_ind))
+            callback(gamedir, status='maybe_partial', status_long='status_ind={0}'.format(status_ind), 
+                     pk=game_pk, innings=innings, atbats=atbats)
 
 class GameDirError(RuntimeError):
     def __init__(self, gamedirs, descr):

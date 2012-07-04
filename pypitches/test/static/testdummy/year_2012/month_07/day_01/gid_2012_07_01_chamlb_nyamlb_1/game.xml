@@ -1,0 +1,5 @@
+<!--Copyright 2012 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt--><game type="R" local_game_time="14:05" game_pk="318905" game_time_et="02:05 PM" gameday_sw="P">
+	<team type="home" code="nya" file_code="nyy" abbrev="NYY" id="147" name="NY Yankees" name_full="New York Yankees" name_brief="Yankees" w="48" l="30" division_id="201" league_id="103" league="AL"/>
+	<team type="away" code="cha" file_code="cws" abbrev="CWS" id="145" name="Chi White Sox" name_full="Chicago White Sox" name_brief="White Sox" w="42" l="37" division_id="202" league_id="103" league="AL"/>
+	<stadium id="3313" name="Yankee Stadium" venue_w_chan_loc="USNY0172" location="Bronx, NY"/>
+</game>

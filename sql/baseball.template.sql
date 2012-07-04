@@ -208,8 +208,11 @@ CREATE TABLE gamedir (
     status_long TEXT,      -- exactly what's the problem officer
     loaded BOOLEAN NOT NULL DEFAULT FALSE,
     game_pk INTEGER,
+    atbats INTEGER,
+    innings INTEGER,
 
-    FOREIGN KEY (game_pk) REFERENCES game(game_pk),
+    -- no foreign key! I fill this table before loading games "for real"
+    --FOREIGN KEY (game_pk) REFERENCES game(game_pk),
     UNIQUE(url, path)
 );
 {% if postgres %}

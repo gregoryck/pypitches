@@ -27,6 +27,7 @@ See setup.py.
 - Matplotlib
 - NumPy
 - Flask (eventually)
+- nose (for tests)
 
 ToDo
 ----

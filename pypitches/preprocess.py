@@ -3,9 +3,6 @@
 
 # USAGE
 #  python preprocess.py FLAG1 FLAG2 .. FLAGN filename
-# lines that don't end with --:<something> are printed always
-# lines that end with --:<something> are printed if and only if that flag 
-# was given as an argument
 
 import re
 import sys

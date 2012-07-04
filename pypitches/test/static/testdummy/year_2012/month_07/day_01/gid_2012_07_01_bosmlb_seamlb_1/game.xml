@@ -1,0 +1,5 @@
+<!--Copyright 2012 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt--><game type="R" local_game_time="13:10" game_pk="318904" game_time_et="04:10 PM" gameday_sw="P">
+	<team type="home" code="sea" file_code="sea" abbrev="SEA" id="136" name="Seattle" name_full="Seattle Mariners" name_brief="Mariners" w="34" l="47" division_id="200" league_id="103" league="AL"/>
+	<team type="away" code="bos" file_code="bos" abbrev="BOS" id="111" name="Boston" name_full="Boston Red Sox" name_brief="Red Sox" w="42" l="37" division_id="201" league_id="103" league="AL"/>
+	<stadium id="680" name="Safeco Field" venue_w_chan_loc="USWA0395" location="Seattle, WA"/>
+</game>

@@ -1,0 +1,5 @@
+<!--Copyright 2012 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt--><game type="R" local_game_time="13:10" game_pk="318903" game_time_et="02:10 PM" gameday_sw="P">
+	<team type="home" code="mil" file_code="mil" abbrev="MIL" id="158" name="Milwaukee" name_full="Milwaukee Brewers" name_brief="Brewers" w="36" l="42" division_id="205" league_id="104" league="NL"/>
+	<team type="away" code="ari" file_code="ari" abbrev="ARI" id="109" name="Arizona" name_full="Arizona Diamondbacks" name_brief="D-backs" w="39" l="39" division_id="203" league_id="104" league="NL"/>
+	<stadium id="32" name="Miller Park" venue_w_chan_loc="USWI0455" location="Milwaukee, WI"/>
+</game>
