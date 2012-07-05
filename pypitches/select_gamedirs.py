@@ -9,6 +9,7 @@
 
 
 import os
+from os.path import abspath
 import sys
 from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
@@ -149,23 +150,38 @@ class MissingAtbatsError(GameDirError):
 #      yield game_pk, directories
 #
 
-def classify_local_dirs(rootdir):
-    def add_gamedir(gamedir, status, innings=None, pk=None, status_long=None):
-        new_gamedir = GameDir()
-        new_gamedir.dirname = gamedir
-        new_gamedir.status = status
-        new_gamedir.status_long = status_long
-        new_gamedir.local_copy = True
-        new_gamedir.game_pk = pk
-        new_gamedir.innings = innings
-        Session.add(new_gamedir)
-    os.path.walk(rootdir, classify_dir, add_gamedir)
+def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None):
+    maybe_gamedir = Session.query(GameDir).filter(GameDir.path==path).all()
+    if len(maybe_gamedir) == 1:
+        gamedir = maybe_gamedir[0]
+    elif len(maybe_gamedir) == 0:
+        gamedir = GameDir()
+        Session.add(gamedir)
+    else:
+        raise ValueError, "Duplicate gamedir.path in database: {0}".format(path)
+    gamedir.path = path
+    gamedir.status = status
+    gamedir.status_long = status_long
+    gamedir.local_copy = True
+    gamedir.game_pk = pk
+    gamedir.innings = innings
+
+def classify_local_dirs_by_filesystem(rootdir):
+    os.path.walk(abspath(rootdir), classify_dir, update_or_add_gamedir)
     Session.commit()
+
+def classify_local_dirs_by_database():
+    for path, in Session.query(GameDir.path).filter(GameDir.local_copy == True).filter(GameDir.path != None):
+        classify_dir(update_or_add_gamedir, path, os.listdir(path))
+    Session.commit()
+
 
 if __name__ == "__main__":
     db, user, password, start_dir = sys.argv[1:5]
-    start_postgres(db, user, password)
-    classify_local_dirs(start_dir)
+    global Session
+    Session = start_postgres(db, user, password)
+    classify_local_dirs_by_filesystem(start_dir)
+    classify_local_dirs_by_database()
 
 
 

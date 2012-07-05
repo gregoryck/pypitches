@@ -54,7 +54,7 @@ def test_basics():
 def test_classify():
     from pypitches import select_gamedirs
     select_gamedirs.Session = Session
-    select_gamedirs.classify_local_dirs(static_dir)
+    select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
     assert Session.query(GameDir).count() == 4
     assert Session.query(GameDir).filter(GameDir.status=='postponed').count() == 1
     
