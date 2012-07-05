@@ -13,7 +13,7 @@ import sys
 from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
 import pdb
-import model
+from model import GameDir, Session, start_postgres
 
 def classify_dir(callback, gamedir, files):
     """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
@@ -150,20 +150,21 @@ class MissingAtbatsError(GameDirError):
 #
 
 def classify_local_dirs(rootdir):
-    session = model.Session()
-    def add_gamedir(gamedir, status, status_long=None):
+    def add_gamedir(gamedir, status, innings=None, pk=None, status_long=None):
         new_gamedir = GameDir()
         new_gamedir.dirname = gamedir
         new_gamedir.status = status
         new_gamedir.status_long = status_long
         new_gamedir.local_copy = True
-        session.add(new_gamedir)
-    os.path.walk(rootdir, classify_dir, model.add_gamedir)
-    session.commit()
+        new_gamedir.game_pk = pk
+        new_gamedir.innings = innings
+        Session.add(new_gamedir)
+    os.path.walk(rootdir, classify_dir, add_gamedir)
+    Session.commit()
 
 if __name__ == "__main__":
     db, user, password, start_dir = sys.argv[1:5]
-    model.start_postgres(db, user, password)
+    start_postgres(db, user, password)
     classify_local_dirs(start_dir)
 
 

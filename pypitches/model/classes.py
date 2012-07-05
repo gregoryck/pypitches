@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Integer, String, Column, DateTime, Float, Boolean, Text, CHAR, Date
+from sqlalchemy import Integer, String, Column, DateTime
+from sqlalchemy import Float, Boolean, Text, CHAR, Date
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 
@@ -134,13 +135,13 @@ class Runner(Base):
     __tablename__     = "runner"
     runner_pk         = Column(Integer, primary_key=True)
     atbatnum          = Column(Integer, ForeignKey('atbat.num'))
-    game_pk          = Column(Integer, ForeignKey('game.game_pk'))
-    id               = Column(Integer, ForeignKey('player.id'))
+    game_pk           = Column(Integer, ForeignKey('game.game_pk'))
+    id                = Column(Integer, ForeignKey('player.id'))
     start             = Column(Text)
-    end              = Column(Text)
+    end               = Column(Text)
     score             = Column(CHAR(1))
-    rbi             = Column(CHAR(1))
-    earned             = Column(CHAR(1))
+    rbi               = Column(CHAR(1))
+    earned            = Column(CHAR(1))
     event             = Column(Text)
 class GameDir(Base):
     __tablename__     = "gamedir"
@@ -148,11 +149,20 @@ class GameDir(Base):
     id                 = Column(Integer, primary_key=True)
     local_copy         = Column(Boolean)
     url                = Column(Text)
-    path                = Column(Text)
+    path               = Column(Text)
     status             = Column(Text)
     status_long        = Column(Text)
     loaded             = Column(Boolean, default=False)
     game_pk            = Column(Integer)
     atbats             = Column(Integer)
     innings            = Column(Integer)
+    downloaded_time    = Column(DateTime)
+    loaded_time        = Column(DateTime)
+
+    def __init_(self, url=None, path=None, status='not examined', local_copy=True):
+        self.url = url
+        self.path =path 
+        self.status= status
+        self.local_copy = local_copy
+
 

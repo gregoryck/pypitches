@@ -1,11 +1,7 @@
 from classes import *
-from helpers import *
-import session
 
-
-Session = None
-def start_postgres(db, user, password=None):
-    global Session
-    Session = session.start_postgres(db, user, password)
+# default Session with default params. For others 
+# (e.g. testing database), call it yerself
+from session import *
 
 

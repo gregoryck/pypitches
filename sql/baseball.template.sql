@@ -204,12 +204,15 @@ CREATE TABLE gamedir (
     local_copy BOOLEAN NOT NULL DEFAULT FALSE,
     url TEXT UNIQUE,
     path TEXT UNIQUE,
-    status TEXT NOT NULL,      -- or enum? final, postponed, error, what else?
+    status TEXT ,      -- or enum? final, postponed, error, what else?
+                       -- NULL means I haven't looked yet 
     status_long TEXT,      -- exactly what's the problem officer
     loaded BOOLEAN NOT NULL DEFAULT FALSE,
     game_pk INTEGER,
     atbats INTEGER,
     innings INTEGER,
+    downloaded_time TIMESTAMP DEFAULT now(),
+    loaded_time TIMESTAMP DEFAULT now(),
 
     -- no foreign key! I fill this table before loading games "for real"
     --FOREIGN KEY (game_pk) REFERENCES game(game_pk),
