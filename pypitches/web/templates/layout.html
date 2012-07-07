@@ -1,16 +1,11 @@
-<!doctype html>
-<title>{% block title %}PyPitches{% endblock %}</title>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-<div class=page>
-  <h1>MiniTwit</h1>
-  <div class=navigation>
-  {% if g.user %}
-    <a href="{{ url_for('controls') }}">controls</a> |
-    <a href="{{ url_for('status') }}">status</a> 
-  {% else %}
-    <a href="{{ url_for('status') }}">status</a> |
-  {% endif %}
-  </div>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>{% block title %}PyPitches{% endblock %}</title>
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+    <link rel=stylesheet type=text/css href="/static/fixed.css">
+</head>
+<body>
   {% with flashes = get_flashed_messages() %}
     {% if flashes %}
       <ul class=flashes>
@@ -20,10 +15,23 @@
       </ul>
     {% endif %}
   {% endwith %}
-  <div class=body>
-  {% block body %}{% endblock %}
-  </div>
-  <div class=footer>
-    PyPitches &mdash; A Flask Application
-  </div>
-</div>
+    <div id="container">
+        <div id="header"><h1>Header</h1></div>
+        <div id="wrapper">
+            <div id="content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+        <div class="navigation">
+            {% if g.user %}
+            <p><a href="{{ url_for('controls') }}">controls</a></p> 
+            <p><a href="{{ url_for('status') }}">status</a></p> 
+            {% else %}
+            <p><a href="{{ url_for('status') }}">status</a></p> 
+            {% endif %}
+        </div>
+        <div id="extra">
+        </div>
+    </div>
+</body>
+</html>
