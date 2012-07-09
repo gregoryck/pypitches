@@ -3,52 +3,40 @@
     Status
 {% endblock %}
 {% block scripts %}
-	<style type="text/css">
-		@import "/static/dojo/resources/dojo.css";
-		@import "/static/dijit/themes/claro/claro.css";
-		@import "/static/dojox/grid/resources/Grid.css";
-		@import "/static/dojox/grid/resources/claroGrid.css";
-		body {
-			font-size: 0.9em;
-			font-family: Geneva, Arial, Helvetica, sans-serif;
-		}
-		.heading {
-			font-weight: bold;
-			padding-bottom: 0.25em;
-		}
-		#grid, #grid2 {
-			width: 65em;
-			height: 25em;
-			padding: 1px;
-		}
-	</style>
-
-<script type="text/javascript" 
-        src="https://ajax.googleapis.com/ajax/libs/dojo/1.7.2/dojo/dojo.js"
-		djConfig="isDebug:false, parseOnLoad: true"></script>
-<script type="text/javascript">
-		dojo.require("dijit.dijit");
-		dojo.require("dojox.grid.DataGrid");
-		dojo.require("dojo.data.ItemFileWriteStore");
-		dojo.require("dojo.parser");
-</script>
+<link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase-min.css">
 <script type="text/javascript" src="/static/test_data.js"></script>
+<script type="text/javascript">
+    YUI().use('node', 'event', 'datatable', 'datasource', function (Y) {
+                var testTitle = Y.one('#testTitle');
+                testTitle.on("click", function (e) {this.setHTML('Now I am over here');});
+
+                var data = [
+                { id: "ga-3475", name: "gadget",   price: "$6.99", cost: "$5.99" },
+                { id: "sp-9980", name: "sprocket", price: "$3.75", cost: "$3.25" },
+                { id: "wi-0650", name: "widget",   price: "$4.25", cost: "$3.75" }
+                ];
+
+                var source = new Y.datasource.Get({
+                        source: "_get_status"
+                });
+                var table = new Y.DataTable({
+                        columns: ["id", "name", "price"],
+                        data: data,
+
+                        // Optionally configure your table with a caption
+                        caption: "My first DataTable!",
+
+                        // and/or a summary (table attribute)
+                        summary: "Example DataTable showing basic instantiation configuration"
+                });
+
+                table.render("#content");
+
+});
+    
+</script>
 {% endblock %}
 
 {% block content %}
-  <h2>{{ self.title() }}</h2>
-	<div class="heading">dojox.grid.DataGrid Basic Test</div>
-	<span dojoType="dojo.data.ItemFileWriteStore" 
-		jsId="jsonStore" url="/static/countries.json">
-	</span>
-	<table dojoType="dojox.grid.DataGrid" keepSelection=true
-		jsid="grid" id="grid" 
-		store="jsonStore" query="{ name: '*' }" rowsPerPage="20" rowSelector="20px">
-		<thead>
-			<tr>
-				<th field="name" width="300px">Country/Continent Name</th>
-				<th field="type" width="auto">Type</th>
-			</tr>
-		</thead>
-	</table>
+  <h2 id="testTitle">{{ self.title() }}</h2>
 {% endblock %}
