@@ -3,36 +3,29 @@
     Status
 {% endblock %}
 {% block scripts %}
-<link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase-min.css">
+<script type="text/javascript" language="javascript" 
+    src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" language="javascript" 
+    src="/static/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
-    YUI().use('event', 'datatable', 'datasource-get', "datasource-jsonschema", "datatable-datasource", function (Y) {
-                var url = "_gamedirs?format=json&";
-                var dataSource = new Y.DataSource.Get({ source: url});
-                dataSource.plug(Y.Plugin.DataSourceJSONSchema, {
-                    schema: {
-                        resultListLocator: "gamedirs",
-                        resultFields: ["Path", 'URL']
-                    }
-                });
+    $(document).ready(function() {
+         $('#gamedata').dataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "sAjaxSource": "_gamedata"
+          });
 
-                var source = new Y.DataSource.Get({
-                        source: "_get_status"
-                });
-                var table = new Y.DataTable({
-                        columns: ["Path", "URL"],
-                        caption: "Game Data",
-                        summary: "Game data directories seen on the mlb server"
-                });
-
-                table.plug(Y.Plugin.DataTableDataSource, {datasource: dataSource });
-                table.render("#content");
-                table.datasource.load();
-
-});
-    
+    });
 </script>
+
 {% endblock %}
 
 {% block content %}
   <h2 id="testTitle">{{ self.title() }}</h2>
+  <table id="gamedata">
+      <thead>
+          <tr><th>Path</th><th>URL</th></tr>
+      </thead>
+      <tbody></tbody>
+  </table>
 {% endblock %}

@@ -18,12 +18,22 @@ def controls():
 def load():
     gamedir_id = request.form['gamedir_id']
 
-@app.route('/pypitches/_gamedirs')
+@app.route('/pypitches/_gamedata')
 def gamedirs():
-    return jsonify({'gamedirs': [{'Path': 'test',
-                                  'URL' : 'test2',
-                                 }]
-                  })
+    start = int(request.args['iDisplayStart'])
+    length = int(request.args['iDisplayLength'])
+    columns = int(request.args['iColumns'])
+    echo = int(request.args['sEcho'])
+    print start, length, columns, echo
+    rows = [
+                [ 'test', 'test2', ]
+           ]
+    return jsonify({
+                'iTotalRecords': 1,
+                'iTotalDisplayRecords': 1,
+                'sEcho': echo,
+                'aaData': rows,
+            })
 
 @app.route('/static/<filename>')
 def send_foo(filename):
