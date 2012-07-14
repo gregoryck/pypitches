@@ -4,33 +4,29 @@
 {% endblock %}
 {% block scripts %}
 <link rel="stylesheet" href="http://yui.yahooapis.com/3.5.1/build/cssbase/cssbase-min.css">
-<script type="text/javascript" src="/static/test_data.js"></script>
 <script type="text/javascript">
-    YUI().use('node', 'event', 'datatable', 'datasource', function (Y) {
-                var testTitle = Y.one('#testTitle');
-                testTitle.on("click", function (e) {this.setHTML('Now I am over here');});
+    YUI().use('event', 'datatable', 'datasource-get', "datasource-jsonschema", "datatable-datasource", function (Y) {
+                var url = "_gamedirs?format=json&";
+                var dataSource = new Y.DataSource.Get({ source: url});
+                dataSource.plug(Y.Plugin.DataSourceJSONSchema, {
+                    schema: {
+                        resultListLocator: "gamedirs",
+                        resultFields: ["Path", 'URL']
+                    }
+                });
 
-                var data = [
-                { id: "ga-3475", name: "gadget",   price: "$6.99", cost: "$5.99" },
-                { id: "sp-9980", name: "sprocket", price: "$3.75", cost: "$3.25" },
-                { id: "wi-0650", name: "widget",   price: "$4.25", cost: "$3.75" }
-                ];
-
-                var source = new Y.datasource.Get({
+                var source = new Y.DataSource.Get({
                         source: "_get_status"
                 });
                 var table = new Y.DataTable({
-                        columns: ["id", "name", "price"],
-                        data: data,
-
-                        // Optionally configure your table with a caption
-                        caption: "My first DataTable!",
-
-                        // and/or a summary (table attribute)
-                        summary: "Example DataTable showing basic instantiation configuration"
+                        columns: ["Path", "URL"],
+                        caption: "Game Data",
+                        summary: "Game data directories seen on the mlb server"
                 });
 
+                table.plug(Y.Plugin.DataTableDataSource, {datasource: dataSource });
                 table.render("#content");
+                table.datasource.load();
 
 });
     

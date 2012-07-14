@@ -1,4 +1,4 @@
-from flask import Flask, request, session, url_for, render_template, flash, send_from_directory
+from flask import Flask, request, session, url_for, render_template, flash, send_from_directory, jsonify
 from pypitches import load
 import traceback
 from os.path import join
@@ -17,6 +17,13 @@ def controls():
 @app.route('/pypitches/load', methods=['POST'])
 def load():
     gamedir_id = request.form['gamedir_id']
+
+@app.route('/pypitches/_gamedirs')
+def gamedirs():
+    return jsonify({'gamedirs': [{'Path': 'test',
+                                  'URL' : 'test2',
+                                 }]
+                  })
 
 @app.route('/static/<filename>')
 def send_foo(filename):
