@@ -1,10 +1,12 @@
 from flask import Flask, request, session, url_for, render_template, flash, send_from_directory, jsonify
-from pypitches import load
+import load
 import traceback
 from os.path import join
+from model import start_postgres, GameDir
+
 
 app = Flask(__name__)
-
+Session = None
 
 @app.route('/pypitches/status')
 def status():
@@ -25,15 +27,28 @@ def gamedirs():
     columns = int(request.args['iColumns'])
     echo = int(request.args['sEcho'])
     print start, length, columns, echo
-    rows = [
-                [ 'test', 'test2', ]
-           ]
-    return jsonify({
-                'iTotalRecords': 1,
-                'iTotalDisplayRecords': 1,
-                'sEcho': echo,
-                'aaData': rows,
-            })
+    try:
+        query = Session.query(GameDir.path, GameDir.url, GameDir.downloaded_time, GameDir.loaded_time, GameDir.date_scheduled)
+        count = query.count()
+        rows = [fmt_row(row, ident, ident, str, str, str) for row in query.all()]
+        return jsonify({
+                    'iTotalRecords': count,
+                    'iTotalDisplayRecords': count,
+                    'sEcho': echo,
+                    'aaData': rows,
+                    'DT_RowClass': 'any_row',
+                })
+    except:
+        print traceback.format_exc()
+        return "<pre>{0}</pre>".format(traceback.format_exc())
+
+def ident(x):
+    return x
+
+
+def fmt_row(row, *types):
+    return [ ty(col) for ty, col in zip(types, row)]
+
 
 @app.route('/static/<filename>')
 def send_foo(filename):
@@ -46,6 +61,10 @@ def send_foo(filename):
         traceback.print_exc()
         raise
 
+def run(db='pypitches', user='pypitches', password=None):
+    global Session  
+    Session = start_postgres(db, user, password)
+    app.run()
 
 if __name__ == "__main__":
-    app.run()
+    run()

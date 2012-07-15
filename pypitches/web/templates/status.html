@@ -8,13 +8,31 @@
 <script type="text/javascript" language="javascript" 
     src="/static/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
+
+    addClick = function(oSettings, json) {
+                 $('#gamedata tr').click( function() {
+                        $(this).toggleClass('row_selected');
+    })};
+
     $(document).ready(function() {
-         $('#gamedata').dataTable( {
+        var table;
+
+         table = $('#gamedata').dataTable( {
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": "_gamedata"
+            "bFilter": false,
+            "bInfo": false,
+            "bLengthChange": false,
+            "sPaginationType": "full_numbers",
+            "sAjaxSource": "_gamedata",
+            "fnDrawCallback": addClick
           });
 
+         $('#testTitle').click( function(e) {
+             table.$('tr.row_selected').each( function(idx, elmt) {
+                 alert(idx + ' ' + $(this).text());
+             });
+         });
     });
 </script>
 
@@ -22,9 +40,14 @@
 
 {% block content %}
   <h2 id="testTitle">{{ self.title() }}</h2>
-  <table id="gamedata">
+  <table id="gamedata" class="pretty">
       <thead>
-          <tr><th>Path</th><th>URL</th></tr>
+          <tr><th>Path</th>
+              <th>URL</th>
+              <th>Downloaded</th> 
+              <th>Loaded</th> 
+              <th>Date Scheduled</th> 
+          </tr>
       </thead>
       <tbody></tbody>
   </table>

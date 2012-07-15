@@ -158,6 +158,7 @@ class GameDir(Base):
     innings            = Column(Integer)
     downloaded_time    = Column(DateTime)
     loaded_time        = Column(DateTime)
+    date_scheduled     = Column(Date)
 
     def __init_(self, url=None, path=None, status='not examined', local_copy=True):
         self.url = url

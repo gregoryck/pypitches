@@ -3,13 +3,14 @@ import load
 import sys
 import yaml
 import json
-from web.app import app
+from web.app import run
 from IPython import embed
 
 cmds = [
 'web',
 'ipython',
 'file',
+'webtest',
 ]
 def main():
     try:
@@ -19,7 +20,9 @@ def main():
         print "usage: python pypitches.py web\nor\n       python pypitches.py ipython"
         sys.exit()
     if cmd == 'web':
-        app.run()
+        run()
+    elif cmd == 'webtest':
+        run('pypitchestest', 'pypitches', 'slider')
     elif cmd == 'ipython':
         embed()
     elif cmd == 'file':

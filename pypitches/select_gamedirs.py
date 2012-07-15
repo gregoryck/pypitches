@@ -15,6 +15,7 @@ from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
 import pdb
 from model import GameDir, Session, start_postgres
+import datetime
 
 def classify_dir(callback, gamedir, files):
     """Determine if a game was postponed by looking in its boxscore.xml and, if necessary, in its inning_all.xml
@@ -30,20 +31,23 @@ def classify_dir(callback, gamedir, files):
     status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
     game_pk = BeautifulStoneSoup(open(os.path.join(gamedir, 'game.xml'))).findAll('game')[0]['game_pk'] 
     innings = len(BeautifulStoneSoup(open(os.path.join(gamedir, 'inning', 'inning_all.xml'))).findAll('inning'))
+    date_str = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['date']
+    date = datetime.datetime.strptime(date_str, "%B %d, %Y").date()
+    
     if status_ind == 'F':
-        callback(gamedir, status='final', pk=game_pk, innings=innings)
+        callback(gamedir, status='final', pk=game_pk, innings=innings, date=date)
     elif status_ind == 'P' or status_ind == 'PR':
-        callback(gamedir, status='postponed', pk=game_pk, innings=innings)
+        callback(gamedir, status='postponed', pk=game_pk, innings=innings, date=date)
     else:
         # Can't stop here.  Check that at least one at-bat was actually played
         atbats = len(BeautifulStoneSoup(open(os.path.join(gamedir, 'inning/inning_all.xml'))).findAll('atbat'))
         if atbats == 0:
             #raise MissingAtbatsError(gamedir, "status_ind=%s but no plate appearances took place" % (status_ind,))
             callback(gamedir, status='error', status_long="status_ind=%s but no plate appearances took place" % (status_ind,), 
-                     pk=game_pk, innings=innings, atbats=atbats)
+                     pk=game_pk, innings=innings, atbats=atbats, date=date)
         else:
             callback(gamedir, status='maybe_partial', status_long='status_ind={0}'.format(status_ind), 
-                     pk=game_pk, innings=innings, atbats=atbats)
+                     pk=game_pk, innings=innings, atbats=atbats, date=date)
 
 class GameDirError(RuntimeError):
     def __init__(self, gamedirs, descr):
@@ -150,7 +154,7 @@ class MissingAtbatsError(GameDirError):
 #      yield game_pk, directories
 #
 
-def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None):
+def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None, date=None):
     maybe_gamedir = Session.query(GameDir).filter(GameDir.path==path).all()
     if len(maybe_gamedir) == 1:
         gamedir = maybe_gamedir[0]
@@ -165,6 +169,9 @@ def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None)
     gamedir.local_copy = True
     gamedir.game_pk = pk
     gamedir.innings = innings
+    if not date:
+        raise ValueError, "update_or_add_gamedir requires a date argument"
+    gamedir.date_scheduled = date
 
 def classify_local_dirs_by_filesystem(rootdir):
     os.path.walk(abspath(rootdir), classify_dir, update_or_add_gamedir)
