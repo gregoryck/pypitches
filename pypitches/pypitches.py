@@ -1,8 +1,6 @@
 import model
 import load
 import sys
-import yaml
-import json
 from web.app import run
 from IPython import embed
 
@@ -11,6 +9,7 @@ cmds = [
 'ipython',
 'file',
 'webtest',
+'initdb',
 ]
 def main():
     try:
@@ -25,6 +24,8 @@ def main():
         run('pypitchestest', 'pypitches', 'slider')
     elif cmd == 'ipython':
         embed()
+    elif cmd == 'initdb':
+        initdb()
     elif cmd == 'file':
         # will generate output by a config file
         # a la plot_pitch_locations.py

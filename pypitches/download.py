@@ -18,8 +18,8 @@ start_dir = "/components/game/mlb/"
 
 # Patterns to grab only specific years, months, days, or games
 year_pattern  = "year_2012" #only want this one year
-month_pattern = "month_07" 
-day_pattern   = "day_02"
+month_pattern = "month_0" 
+day_pattern   = "day_"
 game_pattern  = "gid_"
 default_patterns = [year_pattern, month_pattern, day_pattern, game_pattern]
 
@@ -124,5 +124,5 @@ def download_with_patterns(patterns=default_patterns, local_dir='downloads'):
 
 if __name__ == "__main__":
     global Session
-    Session = model.start_postgres('pypitchestest', 'pypitches')
-    download_with_patterns(local_dir='download_test')
+    Session = model.start_postgres('pypitches', 'pypitches')
+    download_with_patterns(local_dir='download')

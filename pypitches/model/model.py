@@ -153,6 +153,7 @@ class GameDir(Base):
     status_long        = Column(Text)
     loaded             = Column(Boolean)
     game_pk            = Column(Integer)
+    date_scheduled     = Column(Date)
 
 def add_gamedir(path, status, status_long=None):
     gamedir = GameDir()

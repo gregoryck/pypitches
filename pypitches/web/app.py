@@ -8,6 +8,18 @@ from model import start_postgres, GameDir
 app = Flask(__name__)
 Session = None
 
+@app.route('/pypitches/player')
+def player():
+    return render_template('player.html')
+
+@app.route('/pypitches/_player_name_completion')
+def player_name_completion():
+    return jsonify({'error': 'NotImplemented'})
+
+@app.route('/pypitches/_player_charts')
+def player_charts():
+    return jsonify({'error': 'NotImplemented'})
+
 @app.route('/pypitches/status')
 def status():
     return render_template("status.html")
@@ -40,6 +52,7 @@ def gamedirs():
                 })
     except:
         print traceback.format_exc()
+        Session.rollback()
         return "<pre>{0}</pre>".format(traceback.format_exc())
 
 def ident(x):

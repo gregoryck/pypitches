@@ -154,7 +154,7 @@ class MissingAtbatsError(GameDirError):
 #      yield game_pk, directories
 #
 
-def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None, date=None):
+def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None, atbats=None):
     maybe_gamedir = Session.query(GameDir).filter(GameDir.path==path).all()
     if len(maybe_gamedir) == 1:
         gamedir = maybe_gamedir[0]
@@ -169,9 +169,7 @@ def update_or_add_gamedir(path, status, innings=None, pk=None, status_long=None,
     gamedir.local_copy = True
     gamedir.game_pk = pk
     gamedir.innings = innings
-    if not date:
-        raise ValueError, "update_or_add_gamedir requires a date argument"
-    gamedir.date_scheduled = date
+    gamedir.atbats = atbats
 
 def classify_local_dirs_by_filesystem(rootdir):
     os.path.walk(abspath(rootdir), classify_dir, update_or_add_gamedir)
@@ -187,7 +185,7 @@ if __name__ == "__main__":
     db, user, password, start_dir = sys.argv[1:5]
     global Session
     Session = start_postgres(db, user, password)
-    classify_local_dirs_by_filesystem(start_dir)
+    #classify_local_dirs_by_filesystem(start_dir)
     classify_local_dirs_by_database()
 
 
