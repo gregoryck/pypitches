@@ -12,7 +12,7 @@ def start_postgres(db, user, password=None):
         engine = create_engine("postgres://%s:%s@localhost/%s" % 
                                (user, password, db), echo=False)
     else:
-        engine = create_engine("postgres://%s@localhost/%s" % 
+        engine = create_engine("postgres://%s:aaaa@localhost/%s" % 
                                (user, db), echo=False)
     return scoped_session(sessionmaker(bind=engine))
 
