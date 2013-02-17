@@ -9,7 +9,7 @@ setup (
         #scripts=[],
         url="http://thefamilyatomics.com/pypitches",
         description="Analyzing Major League Baseball pitch data from PITCHf/x",
-        long_description=open('README.txt').read(),
+        long_description=open('README.rst').read(),
         requires=[
             "SQLAlchemy (>=0.7)",
             "BeautifulSoup (>=3.2.0)",
@@ -20,6 +20,8 @@ setup (
             "PyYAML (>=3.10)",
             "nose (>=1.1.2)",
             "coverage (>=3.5.2)",
+            "Jinja2 (>=2.6)",
+            "psycopg2 (>=2.4.4)",
             ],
         )
 

@@ -4,6 +4,12 @@ from subprocess import call, Popen, PIPE
 import sys
 import preprocess
 
+
+try:
+    call(['psql', '--help'])
+except:
+    raise EnvironmentError, "This script (and PyPitches) requires PostgreSQL"
+
 db_name = "pypitches" 
 sql_file = "baseball.sql"
 template_file = sys.argv[1] #"baseball.template.sql"
