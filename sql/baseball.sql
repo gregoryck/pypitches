@@ -1,5 +1,5 @@
 begin;
-
+DROP VIEW IF EXISTS ranges;
 DROP TABLE IF EXISTS Pitch;
 DROP TABLE IF EXISTS Runner;
 DROP TABLE IF EXISTS Atbat;
@@ -296,7 +296,7 @@ $lefty$ LANGUAGE 'plpgsql';
 
 --    FOREIGN KEY (pitcher) references player (id),
 --    primary key (pitcher)
-CREATE VIEW RANGES AS 
+CREATE VIEW ranges AS 
     SELECT pitch.pitcher, 
     avg(start_speed) - 2*stddev(start_speed) as low_speed,
     avg(start_speed) + 2 * stddev(start_speed) as high_speed,
