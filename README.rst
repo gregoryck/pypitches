@@ -15,7 +15,8 @@ Requires
 See requirements.txt 
 
 Or just create a virtualenv and 
-.. code-block:: bash 
+
+.. code:: bash 
 
     pip install -r requirements.txt
 
