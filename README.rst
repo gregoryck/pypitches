@@ -5,33 +5,26 @@ PyPitches
 Introduction
 ------------
 
-For Julython_, I'm creating a web interface to show this off. The code will continue to live here but by August, it will be possible for
-someone to re-generate example plots without downloading anything.
-
-I've also rejiggered the schema quite a bit. SQLite support is currently broken as I focus on Postgres.
-
-.. _Julython: http://www.julython.org/
-
 This is a set of scripts to download PITCHf/x XML data from mlb.com,
-to load that data into a database (SQLite or Postgres),
+to load that data into a PostgreSQL database, 
 and to generate figures from that data.
 
 
 Requires
 --------
-See setup.py.
+See requirements.txt 
 
-- SQLAlchemy
-- psycopg2
-- BeautifulSoup
-- Matplotlib
-- NumPy
-- Flask (eventually)
-- nose (for tests)
+Or just create a virtualenv and 
+.. code-block:: bash 
+
+    pip install -r requirements.txt
 
 ToDo
 ----
-- Quantify the effect of fried chicken and beer on Red Sox pitching in September?
+- Quantify the effect of fried chicken and beer on Red Sox pitching in September 2011?
+- See Github issues_.
+
+.. _issues: https://github.com/gregoryck/pypitches/issues
 
 
 What do the columns mean?

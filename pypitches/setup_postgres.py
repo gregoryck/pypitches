@@ -23,13 +23,8 @@ def initdb(settings):
 
     with open(sql_file) as inhandle:
         ddl_string = "".join(list(inhandle))
-    import pdb
-    pdb.set_trace()
     cursor.execute(ddl_string)
     conn.commit()
-
-
-
 
 if __name__ == "__main__":
     settings = dict(postgres_db='pypitches', postgres_user='pypitches', postgres_password='slider')
