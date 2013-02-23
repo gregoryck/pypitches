@@ -21,6 +21,7 @@ setup (
             "nose (>=1.1.2)",
             "coverage (>=3.5.2)",
             "Jinja2 (>=2.6)",
+            "flask (>=0.9)",
             "psycopg2 (>=2.4.4)",
             ],
         )

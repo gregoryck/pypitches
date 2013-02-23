@@ -95,21 +95,19 @@ CREATE TABLE atbat (
 
 );
 
----{% if postgres %}
+---
 ---CREATE SEQUENCE runner_runner_pk_seq  --:POSTGRES
 ---    INCREMENT BY 1 --:POSTGRES
 ---    NO MAXVALUE --:POSTGRES
 ---    NO MINVALUE --:POSTGRES
 ---    CACHE 1; --:POSTGRES
----{% endif %}
+---
 
 
 CREATE TABLE runner (
-{% if postgres %}
+
    runner_pk SERIAL PRIMARY KEY,
-{% else %}
-   runner_pk INTEGER PRIMARY KEY, --SQLITE
-{% endif %}
+
 
    atbatnum INTEGER,
    game_pk INTEGER,
@@ -162,11 +160,9 @@ CREATE TABLE pitch (
    on_1b INTEGER,
    on_2b INTEGER,
    on_3b INTEGER,
-   {% if postgres %}
+   
    payoff BOOLEAN, --POSTGRES
-   {% else %}
-   payoff INTEGER, --SQLITE
-   {% endif %}
+   
    balls INTEGER,
    strikes INTEGER,
 
@@ -219,7 +215,7 @@ CREATE TABLE gamedir (
     --FOREIGN KEY (game_pk) REFERENCES game(game_pk),
     UNIQUE(url, path)
 );
-{% if postgres %}
+
 create or replace language plpgsql;
 
 --create or replace aggregate avg(float)
@@ -278,9 +274,9 @@ BEGIN
 END;
 $lefty$ LANGUAGE 'plpgsql';
 
-{% endif %}
 
-{% if ranges %}
+
+
 --CREATE TABLE ranges (
 --    low_speed FLOAT,
 --    high_speed FLOAT,
@@ -312,7 +308,7 @@ CREATE VIEW RANGES AS
     join atbat on pitch.atbatnum = atbat.num and pitch.game_pk = atbat.game_pk
     GROUP BY pitch.pitcher;
 
-{% endif %}
+
 
 
 

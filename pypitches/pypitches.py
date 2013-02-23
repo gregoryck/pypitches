@@ -1,8 +1,8 @@
-import model
-import load
 import sys
 from web.app import run
 from IPython import embed
+import yaml
+import setup_postgres
 
 cmds = [
 'web',
@@ -18,6 +18,13 @@ def main():
     except:
         print "usage: python pypitches.py web\nor\n       python pypitches.py ipython"
         sys.exit()
+    if cmd == 'initdb':
+        setup_postgres.initdb()
+        sys.exit()
+    else:
+        import model
+        import load
+
     if cmd == 'web':
         run()
     elif cmd == 'webtest':
@@ -30,6 +37,14 @@ def main():
         # will generate output by a config file
         # a la plot_pitch_locations.py
         raise NotImplementedError
+        
+if len(sys.argv) > 2:
+    settings_file = sys.argv[2]
+else:
+    thisdir = path.dirname(__file__)
+    settings_file = path.join(thisdir, "settings.yaml")
+with open(settings_file) as handle:
+    settings = yaml.load(handle)
 
 
 
