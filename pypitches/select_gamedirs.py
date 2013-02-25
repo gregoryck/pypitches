@@ -14,7 +14,7 @@ import sys
 from BeautifulSoup import BeautifulStoneSoup
 from collections import defaultdict
 import pdb
-from model import GameDir, Session, start_postgres
+from model import GameDir, Session
 import datetime
 
 def classify_dir(callback, gamedir, files):
@@ -183,8 +183,6 @@ def classify_local_dirs_by_database():
 
 if __name__ == "__main__":
     db, user, password, start_dir = sys.argv[1:5]
-    global Session
-    Session = start_postgres(db, user, password)
     #classify_local_dirs_by_filesystem(start_dir)
     classify_local_dirs_by_database()
 

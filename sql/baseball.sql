@@ -209,7 +209,7 @@ CREATE TABLE gamedir (
     innings INTEGER,
     downloaded_time TIMESTAMP DEFAULT now(),
     loaded_time TIMESTAMP DEFAULT now(),
-    date_scheduled DATE NOT NULL,
+    date_scheduled DATE,
 
     -- no foreign key! I fill this table before loading games "for real"
     --FOREIGN KEY (game_pk) REFERENCES game(game_pk),

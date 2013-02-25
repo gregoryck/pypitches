@@ -13,8 +13,6 @@ from model import Session, GameDir
 
 server_string = "http://gdx.mlb.com"
 start_dir = "/components/game/mlb/"
-#server_string = "http://localhost"
-#start_dir = "testbaseball/"
 
 # Patterns to grab only specific years, months, days, or games
 year_pattern  = "year_2012" #only want this one year
@@ -123,6 +121,4 @@ def download_with_patterns(patterns=default_patterns, local_dir='downloads'):
     current_path = abspath(join(current_path, pardir))
 
 if __name__ == "__main__":
-    global Session
-    Session = model.start_postgres('pypitches', 'pypitches')
     download_with_patterns(local_dir='download')

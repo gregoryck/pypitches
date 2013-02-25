@@ -1,7 +1,7 @@
 import sys
 from IPython import embed
-import yaml
 import setup_postgres
+import settings
 from os import path
 
 cmds = [
@@ -12,15 +12,6 @@ cmds = [
 'initdb',
 ]
 
-if len(sys.argv) > 2:
-    settings_file = sys.argv[2]
-else:
-    thisdir = path.dirname(__file__)
-    settings_file = path.join(thisdir, "settings.yaml")
-with open(settings_file) as handle:
-    settings = yaml.load(handle)
-
-
 def main():
     try:
         cmd = sys.argv[1]
@@ -29,7 +20,7 @@ def main():
         print "usage: python pypitches.py web\nor\n       python pypitches.py ipython"
         sys.exit()
     if cmd == 'initdb':
-        setup_postgres.initdb(settings)
+        setup_postgres.initdb(settings.postgres_db, settings.postgres_user, settings.postgres_password)
         sys.exit()
     else:
         import model
@@ -46,6 +37,10 @@ def main():
         # will generate output by a config file
         # a la plot_pitch_locations.py
         raise NotImplementedError
+    elif cmd == 'download':
+        # hit the MLBAM server and get it all
+        # per
+        pass
         
 
 if __name__ == "__main__":
