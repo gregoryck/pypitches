@@ -1,6 +1,7 @@
 import sys
 import preprocess
 import psycopg2
+from os.path import split, join, dirname, abspath
 #from pypitches import pypitches
 
 
@@ -8,6 +9,9 @@ import psycopg2
     # call(['dropdb', '-U', 'pypitches', db_name])
     # call(['createdb', '-U', 'pypitches', db_name])
 
+pypitches_root = split(dirname(abspath(__file__)))[0]
+sql_dir = join(pypitches_root, "sql")
+sql_file = join(sql_dir, "baseball.sql")
 def initdb(db, user, password):
     try:
         conn = psycopg2.connect("dbname='%(postgres_db)s' user='%(postgres_user)s' host='localhost' password='%(postgres_password)s'" 
@@ -20,7 +24,7 @@ def initdb(db, user, password):
         raise
 
     cursor = conn.cursor()
-    sql_file = "sql/baseball.sql" #FIXME get from settings
+
 
     with open(sql_file) as inhandle:
         ddl_string = "".join(list(inhandle))

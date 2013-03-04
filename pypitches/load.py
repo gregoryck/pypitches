@@ -1,5 +1,4 @@
 # Load the XML data into a database
-# If using sqlite, creates the necessary schema, too
 # expects to find a gamedirs.yaml file,
 # which was created by select_gamedirs.py
 
