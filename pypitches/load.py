@@ -11,7 +11,7 @@ import yaml #use this for hand-written configs
 import json #use this for generated files
 from sqlalchemy.exc import IntegrityError
 from dateutil import parser
-from model import GameDir, Session, start_postgres, Player, Game, Pitch, Team, AtBat, Runner
+from model import GameDir, SessionManager, Player, Game, Pitch, Team, AtBat, Runner
 
 
 verbose = False
@@ -51,7 +51,8 @@ def get_start_date(gamedirs):
       datestring = BeautifulStoneSoup(open(os.path.join(gamedir, "boxscore.xml"))).findAll('boxscore')[0]['date']
       return dateutils.parse(datestring)
 
-def loadbox(gamedirs):
+@SessionManager.withsession
+def loadbox(session, gamedirs):
    """Load game and box score data from game.xml, boxscore.xml
    Team names,  etc.
    Takes a list of directories, not just one, in case of suspensions."""
@@ -63,18 +64,19 @@ def loadbox(gamedirs):
    boxscoredata = BeautifulStoneSoup(open(boxscorefile))
    for teamdata in gamedata.findAll('team'):
       teamobj = xml2obj(teamdata.attrs, Team)
-      if not Session.query(Team).filter(Team.code == teamobj.code).all():
-         Session.add(teamobj)
-         Session.flush()
+      if not session.query(Team).filter(Team.code == teamobj.code).all():
+         session.add(teamobj)
+         session.flush()
    gameobj = xml2obj(boxscoredata.findAll('boxscore')[0].attrs + gamedata.findAll('game')[0].attrs, Game)
    gameobj.game_pk = int(gameobj.game_pk)
    gameobj.start_date = get_start_date(gamedirs)
-   Session.add(gameobj)
-   Session.flush()
+   session.add(gameobj)
+   session.flush()
    return gameobj
 
 players = {}
-def loadplayers(playersfile, gameobj):
+@SessionManager.withsession
+def loadplayers(session, playersfile, gameobj):
    """Load players.xml"""
    ids = {}
    playersdata  = BeautifulStoneSoup(open(playersfile))
@@ -86,7 +88,7 @@ def loadplayers(playersfile, gameobj):
          ids[playerdata['id']] = playerdata
          if playerdata['id'] not in players:
             playerobj  = xml2obj(playerdata.attrs, Player)
-            Session.add(playerobj)
+            session.add(playerobj)
             players[playerdata['id']] = playerdata
          else:
             pass
@@ -105,7 +107,6 @@ class MissingFileError(RuntimeError):
       self.value = "Looking for %s in %s" % (missing_file, directory)
    def __str__(self):
       return self.value
-
 
 def check_innings(innings, pitchesfilename):
    """Takes a bunch of inning xml datasets.
@@ -139,7 +140,8 @@ def by_pitchcount(pitchdata1, pitchdata2):
    # Not all pitches have this field. Is id reliable? Or not sorting at all?
    return cmp(pitchdata1['tfs'], pitchdata2['tfs'])
 
-def loadpitches(pitchesfile, gameobj):
+@SessionManager.withsession
+def loadpitches(session, pitchesfile, gameobj):
    """Load at-bats and individual pitches and runner events
    from inning_all.xml"""
 
@@ -164,16 +166,16 @@ def loadpitches(pitchesfile, gameobj):
       atbatobj = xml2obj(atbatdata.attrs, AtBat)
       atbatobj.game_pk = gameobj.game_pk
       atbatobj.date = parser.parse(atbatdata['start_tfs_zulu']).date().ctime()
-      Session.add(atbatobj)
-      Session.flush()
+      session.add(atbatobj)
+      session.flush()
       pitch_datas = atbatdata.findAll('pitch')
       # pitch_datas.sort(by_pitchcount) # Make sure these are in order because...
       count = {'balls': 0, 'strikes': 0}
       for pitchdata in pitch_datas[:-1]:
          pitchobj = makepitchobj(pitchdata, count) # ...balls and strikes are counted as we go and...
-         Session.add(pitchobj)
+         session.add(pitchobj)
          try:
-            Session.flush()
+            session.flush()
          except IntegrityError as e:
             print "failed on pitchobj.game_pk = {0} pitchobj.atbatnum = {1} but last atbat added was {2}, {3}".format(pitchobj.game_pk, pitchobj.atbatnum, atbatobj.game_pk, atbatobj.num)
             raise
@@ -181,16 +183,17 @@ def loadpitches(pitchesfile, gameobj):
       pitchdata = pitch_datas[-1] # ... and last one gets special treatment
       pitchobj = makepitchobj(pitchdata, count)
       pitchobj.payoff = True
-      Session.add(pitchobj)
+      session.add(pitchobj)
       # for runnerdata in atbatdata.findAll('runner'):
       #    runnerobj = xml2obj(runnerdata.attrs, Runner)
       #    runnerobj.atbatnum = atbatobj.num
       #    runnerobj.game_pk = gameobj.game_pk
-      #    Session.add(runnerobj)
+      #    session.add(runnerobj)
 
 
 
-def load_game_data(game_pk, gamedirs):
+@SessionManager.withsession
+def load_game_data(session, game_pk, gamedirs):
    """Check for files in gamedir and then load game metadata
    (By calling loadbox and loadplayers)
    Then load atbats and pitches.
@@ -207,7 +210,7 @@ def load_atbats(gamedirs, gameobj):
    for gamedir in gamedirs:
       loadpitches(os.path.join(gamedir, "inning", "inning_all.xml"), gameobj)
    if verbose: print "loaded at-bats and pitches: ", gamedirs
-
+  
 def get_keys_and_dirs(gamedirs_file):
    """Takes the name of a json file mapping game primary keys to lists of directories for those games.
 
@@ -216,25 +219,10 @@ def get_keys_and_dirs(gamedirs_file):
    for key, dirs in json.load(open(gamedirs_file)).iteritems():
       yield key, dirs
 
-if __name__ == "__main__":
-
-   global Session
-   db, user, password = sys.argv[1:4]
-   Session = start_postgres(db, user, password)
-   finals = Session.query(GameDir).filter(GameDir.status == 'final').filter(GameDir.loaded == False).all()
+@SessionManager.withsession
+def load(session):
+   finals = session.query(GameDir).filter(GameDir.status == 'final').filter(GameDir.loaded == False).all()
    for final in finals:
       load_game_data(final.game_pk, [final.path])
       final.loaded = True
-   Session.commit()
 
-
-   # if len(sys.argv) == 2:
-   #    settings_file = sys.argv[1]
-   # elif len(sys.argv) == 1:
-   #     settings_file = 'yaml'
-   # else:
-   #    print "usage: python load.py yaml"
-
-   # settings, session = init(settings_file)
-   # gamedirs_file = settings['gamedirs_file']
-   # load_games(session, gamedirs_file)

@@ -15,7 +15,7 @@ print model.__name__
 sys.modules['pypitches.model.session'] = sys.modules[model.__name__]
 sys.modules['model.session'] = sys.modules[model.__name__]
 
-from model import GameDir, Team, SessionManager
+from model import GameDir, Team, SessionManager, Game
 # sys.modules['']
 from settings import postgres_password, postgres_user, postgres_test_db
 from setup_postgres import initdb
@@ -50,14 +50,20 @@ class TestBasics(TestCase):
         team2.name_brief = "Venus"
         self.session.add(team2)
         self.session.flush()
-        print "done test_basics"
 
     def test_classify(self):
-        print "start test_classify"
         from pypitches import select_gamedirs
         select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
-        assert self.session.query(GameDir).count() == 4
-        assert self.session.query(GameDir).filter(GameDir.status=='postponed').count() == 1
+        self.assertEqual(self.session.query(GameDir).count(), 4)
+        self.assertEqual(self.session.query(GameDir).filter(GameDir.status=='postponed').count(), 1)
+
+    def test_load(self):
+        from pypitches import select_gamedirs
+        from pypitches import load
+        select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
+        load.load()
+        self.assertEqual(self.session.query(Game).count(), 3)
+
 
 if __name__ == "__main__":
     nose.main()
