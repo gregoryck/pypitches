@@ -2,6 +2,7 @@ import sys
 from IPython import embed
 import setup_postgres
 import settings
+from settings import postgres_password, postgres_user, postgres_db
 from os import path
 
 cmds = [
@@ -10,6 +11,7 @@ cmds = [
 'file',
 'webtest',
 'initdb',
+'load',
 ]
 
 def main():
@@ -20,10 +22,11 @@ def main():
         print "usage: python pypitches.py web\nor\n       python pypitches.py ipython"
         sys.exit()
     if cmd == 'initdb':
-        setup_postgres.initdb(settings.postgres_db, settings.postgres_user, settings.postgres_password)
+        setup_postgres.initdb(postgres_db, postgres_user, postgres_password)
         sys.exit()
     else:
         import model
+        model.SessionManager.create(postgres_db, postgres_user, postgres_password)
         import load
         from web.app import run
 
@@ -39,8 +42,15 @@ def main():
         raise NotImplementedError
     elif cmd == 'download':
         # hit the MLBAM server and get it all
-        # per
         pass
+    elif cmd == 'load':
+        import select_gamedirs
+        static_dir = sys.argv[2]
+        select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
+        load.load()
+        self.assertEqual(self.session.query(Game).count(), 3)
+
+
         
 
 if __name__ == "__main__":

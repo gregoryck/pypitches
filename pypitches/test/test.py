@@ -64,6 +64,10 @@ class TestBasics(TestCase):
         load.load()
         self.assertEqual(self.session.query(Game).count(), 3)
 
+class TestWeb(TestCase):
+    def test_import(self):
+        import web
+        from web import app
 
 if __name__ == "__main__":
     nose.main()

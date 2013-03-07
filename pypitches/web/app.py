@@ -2,7 +2,7 @@ from flask import Flask, request, session, url_for, render_template, flash, send
 import load
 import traceback
 from os.path import join
-from model import start_postgres, GameDir
+from model import SessionManager, GameDir
 
 
 app = Flask(__name__)
