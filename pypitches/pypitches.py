@@ -29,6 +29,7 @@ def main():
         model.SessionManager.create(postgres_db, postgres_user, postgres_password)
         import load
         from web.app import run
+        import select_gamedirs
 
     if cmd == 'web':
         run()
@@ -43,12 +44,15 @@ def main():
     elif cmd == 'download':
         # hit the MLBAM server and get it all
         pass
+    elif cmd == 'classify':
+        with model.SessionManager.get().begin_nested():
+            static_dir = sys.argv[2]
+            select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
+        model.SessionManager.commit()
     elif cmd == 'load':
-        import select_gamedirs
-        static_dir = sys.argv[2]
-        select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
-        load.load()
-        self.assertEqual(self.session.query(Game).count(), 3)
+        with model.SessionManager.get().begin_nested():
+            load.load()
+        model.SessionManager.commit()
 
 
         

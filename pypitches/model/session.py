@@ -37,6 +37,10 @@ class SessionManager(object):
             return cls.create()
 
     @classmethod
+    def commit(cls):
+        return self.get().commit()
+
+    @classmethod
     def create_engine(cls, db, user, password):
         if None in (db, user, password):
             raise ValueError, "SessionManager.create_engine got no database connection parameters. Call create(db, user, password) first."
