@@ -28,13 +28,13 @@ def main():
         import model
         model.SessionManager.create(postgres_db, postgres_user, postgres_password)
         import load
-        from web.app import run
+        from web.app import app
         import select_gamedirs
 
     if cmd == 'web':
-        run()
+        app.run()
     elif cmd == 'webtest':
-        run('pypitchestest', 'pypitches', 'slider')
+        app.run('pypitchestest', 'pypitches', 'slider')
     elif cmd == 'ipython':
         embed()
     elif cmd == 'file':

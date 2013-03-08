@@ -73,11 +73,3 @@ def send_foo(filename):
         print "hey!"
         traceback.print_exc()
         raise
-
-def run(db='pypitches', user='pypitches', password=None):
-    global Session  
-    Session = start_postgres(db, user, password)
-    app.run()
-
-if __name__ == "__main__":
-    run()
