@@ -9,7 +9,6 @@ This is a set of scripts to download PITCHf/x XML data from mlb.com,
 to load that data into a PostgreSQL database, 
 and to generate figures from that data.
 
-
 Requires
 --------
 See requirements.txt 
@@ -19,6 +18,26 @@ Or just create a virtualenv and
 .. code:: bash 
 
     pip install -r requirements.txt
+
+Getting Started
+---------------
+
+- See requirements
+
+.. code:: bash 
+
+    nosetests pypitches/pypitches/test 
+    python pypitches/download.py 
+
+
+- and get a cup of coffee, or bake a cake or something
+- consider editing the patterns at the top of ``download.py`` to restrict the download to certain months
+
+.. code:: bash 
+
+    python pypitches/pypitches.py classify download/ 
+    python pypitches/pypitches.py load
+
 
 ToDo
 ----
@@ -31,9 +50,9 @@ ToDo
 What do the columns mean?
 -------------------------
 
-Copied from Alan M. Nathan's summary_.
+Copied from Alan M. Nathan's glossary_.
 
-.. _summary: http://webusers.npl.illinois.edu/~a-nathan/pob/tracking.htm 
+.. _glossary: http://fastballs.wordpress.com/2007/08/02/glossary-of-the-gameday-pitch-fields/
 
 x, y, and z 
     location of pitch as it crosses the front of home plate. The units are in camera pixels and are therefore not very useful. I recommend ignoring these two parameters and instead use p_x and p_z, defined below.
