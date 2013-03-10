@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Integer, String, Column, DateTime
-from sqlalchemy import Float, Boolean, Text, CHAR, Date
+from sqlalchemy import Float, Boolean, Text, CHAR, Date, func
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, backref
 
@@ -159,6 +159,7 @@ class GameDir(Base):
     downloaded_time    = Column(DateTime)
     loaded_time        = Column(DateTime)
     date_scheduled     = Column(Date)
+    classified_time    = Column(DateTime, server_default=func.now())
 
     def __init_(self, url=None, path=None, status='not examined', local_copy=True):
         self.url = url

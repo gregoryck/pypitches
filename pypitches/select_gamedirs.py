@@ -26,6 +26,8 @@ def classify_dir(session, callback, gamedir, files):
     The game may be restarted from the first inning even if an inning or two was played, 
     but I don't want to throw out that data.
     """
+
+    print "classify_dir: ", gamedir
     if 'boxscore.xml' not in files:
         return #don't care about other dirs
     status_ind = BeautifulStoneSoup(open(os.path.join(gamedir, 'boxscore.xml'))).findAll('boxscore')[0]['status_ind']
@@ -78,7 +80,7 @@ def update_or_add_gamedir(session, path, status, innings=None, pk=None, status_l
     gamedir.game_pk = pk
     gamedir.innings = innings
     gamedir.atbats = atbats
-    gamedir.date = date
+    gamedir.date_scheduled = date
 
 
 @SessionManager.withsession

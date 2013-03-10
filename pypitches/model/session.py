@@ -38,7 +38,7 @@ class SessionManager(object):
 
     @classmethod
     def commit(cls):
-        return self.get().commit()
+        return cls.get().commit()
 
     @classmethod
     def create_engine(cls, db, user, password):

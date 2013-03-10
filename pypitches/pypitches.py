@@ -12,6 +12,7 @@ cmds = [
 'webtest',
 'initdb',
 'load',
+'classify',
 ]
 
 def main():
@@ -19,7 +20,8 @@ def main():
         cmd = sys.argv[1]
         assert(cmd in cmds)
     except:
-        print "usage: python pypitches.py web\nor\n       python pypitches.py ipython"
+        invocations = ["python pypitches.py {0}".format(cmd) for cmd in cmds]
+        print "usage:  " + "\n        ".join(invocations)
         sys.exit()
     if cmd == 'initdb':
         setup_postgres.initdb(postgres_db, postgres_user, postgres_password)
@@ -50,8 +52,9 @@ def main():
             select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
         model.SessionManager.commit()
     elif cmd == 'load':
+        statuses=set(sys.argv[2:]) or set(['final'])
         with model.SessionManager.get().begin_nested():
-            load.load()
+            load.load(statuses)
         model.SessionManager.commit()
 
 
