@@ -4,10 +4,8 @@
 # and return NumPy records for more convenient plotting.
 
 import numpy
-import pypitches as baseball
-from pypitches import Pitch, AtBat, Player, Game
+from model import Pitch, AtBat, Player, Game
 import matplotlib.pyplot as plt
-import pdb
 
 def objs2recarry(objs):
    """Given a list/iterator of Pitch objects, turn it into a NumPy RecArray so
@@ -70,6 +68,7 @@ class NoPitchesError(ValueError):
             ret_str += "\n\t%s: %s" % (key, item)
       return ret_str
 
+@SessionManager.withsession
 def pitches(session, name=None, event=None, des=None, date=None, 
       type_=None, pitch_type=None, stand=None, payoff=None,
       balls=None, strikes=None):
