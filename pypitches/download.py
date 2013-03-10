@@ -9,14 +9,14 @@ from BeautifulSoup import BeautifulSoup
 from urllib2 import urlopen
 import select_gamedirs
 import model
-from model import Session, GameDir
+from model import SessionManager, GameDir
 
 server_string = "http://gdx.mlb.com"
 start_dir = "/components/game/mlb/"
 
 # Patterns to grab only specific years, months, days, or games
 year_pattern  = "year_2012" #only want this one year
-month_pattern = "month_0" 
+month_pattern = "month_07" 
 day_pattern   = "day_"
 game_pattern  = "gid_"
 default_patterns = [year_pattern, month_pattern, day_pattern, game_pattern]
@@ -36,18 +36,23 @@ def get_links(string, pattern):
 
 def grab_page(url, filename=None):
     """Grab page at url and either return it as a string or save it to file"""
-    response = urlopen(url)
-    html = response.read()
+    try:
+        response = urlopen(url)
+        html = response.read()
+    except Exception as err:
+        print >>sys.stderr, "url: {0}\n\t{1}".format(url, str(err))
+
     if filename is None:
        return html
     else:
        with open(filename, 'w') as handle:
           handle.write(html)
 
-def database_has(gamedir_url):
+@SessionManager.withsession
+def database_has(session, gamedir_url):
     """Is that url already downloaded AND is it good?"""
 
-    records = Session.query(GameDir).filter(GameDir.url == gamedir_url).all()
+    records = session.query(GameDir).filter(GameDir.url == gamedir_url).all()
     if len(records) > 1:
         raise ValueError, "multiple records in database for url= {0}".format(gamedir_url)
     elif len(records) == 1:
@@ -55,15 +60,16 @@ def database_has(gamedir_url):
             path = records[0].path
             print "Deleting and replacing old gamedir {0}".format(path)
             shutil.rmtree(path)
-            Session.delete(records[0])
-            Session.commit()
+            session.delete(records[0])
+            session.commit()
             return False
         else:
             return True
     else:
         return False
 
-def download_game(gamedir_url, check_local=database_has):
+@SessionManager.withsession
+def download_game(session, gamedir_url, check_local=lambda x:False):
     """Download the game in directory gamedir_url.
     First grab the directory and get a listing.
     Expect to find a few .xml files and an inning/ directory with an
@@ -88,8 +94,8 @@ def download_game(gamedir_url, check_local=database_has):
         print gamedir_url, " no inning/ directory"
         gamedir_row = GameDir(url=gamedir_url, path=None, status='error', 
                               status_long="no {0} directory".format(pbp_string), local_copy=False)
-    Session.add(gamedir_row)
-    Session.commit()
+    session.add(gamedir_row)
+    session.commit()
 
 
 
@@ -121,4 +127,6 @@ def download_with_patterns(patterns=default_patterns, local_dir='downloads'):
     current_path = abspath(join(current_path, pardir))
 
 if __name__ == "__main__":
+    from settings import postgres_db, postgres_user, postgres_password
+    SessionManager.create(postgres_db, postgres_user, postgres_password)
     download_with_patterns(local_dir='download')
