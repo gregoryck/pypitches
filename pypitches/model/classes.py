@@ -1,7 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Integer, String, Column, DateTime
 from sqlalchemy import Float, Boolean, Text, CHAR, Date, func
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, and_
 from sqlalchemy.orm import relationship, backref
 
 Base = declarative_base()
@@ -50,9 +50,10 @@ class Pitch(Base):
     game_pk          = Column(Integer, ForeignKey('game.game_pk'), primary_key=True )
     pitcher          = Column(Integer, ForeignKey('player.id'))
     batter           = Column(Integer, ForeignKey('player.id'))
-    atbatnum         = Column(Integer, ForeignKey('atbat.num'))
+    atbatnum         = Column(Integer)
     pitchedby        = relationship("Player", primaryjoin="Pitch.pitcher==Player.id")
     seenby        = relationship("Player", primaryjoin="Pitch.batter==Player.id")
+    # atbat         = relationship("AtBat", primaryjoin=and_("Pitch.game_pk == AtBat.game_pk", "Pitch.atbatnum==AtBat.num"))
  
 
 class Game(Base):
@@ -126,7 +127,7 @@ class AtBat(Base):
     brief_event         = Column(Text)
     date              = Column(Date)
  
-    game = relationship("Game", backref=backref("atbat", order_by=num))
+    game = relationship("Game", backref=backref("atbats", order_by=num))
     pitchedby = relationship("Player", primaryjoin="AtBat.pitcher==Player.id")
     wasbatter = relationship("Player", primaryjoin="AtBat.batter==Player.id")
    
@@ -167,4 +168,8 @@ class GameDir(Base):
         self.status= status
         self.local_copy = local_copy
 
-
+Pitch.atbat = relationship('AtBat',
+                          primaryjoin=(Pitch.atbatnum == AtBat.num) & (Pitch.game_pk == AtBat.game_pk),
+                          foreign_keys=[Pitch.atbatnum, Pitch.game_pk],
+                          uselist=False,
+                          )

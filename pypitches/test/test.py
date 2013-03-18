@@ -69,5 +69,29 @@ class TestWeb(TestCase):
         import web
         from web import app
 
+
+class TestPlots(TestCase):
+    def setUp(self):
+        initdb(postgres_test_db, postgres_user, postgres_password)
+        self.session = SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
+
+        from pypitches import select_gamedirs
+        from pypitches import load
+        select_gamedirs.classify_local_dirs_by_filesystem(static_dir)
+        load.load()
+        self.assertEqual(self.session.query(Game).count(), 3)
+
+    def tearDown(self):
+        self.session.rollback()
+        self.session.close() 
+
+    def test_atbat(self):
+        pitch = session.query(Pitch).filter().one()
+        atbat = pitch.atbat
+        self.assertEqual(atbat.game == pitch.game)
+
+
+    def test_plot(self):
+
 if __name__ == "__main__":
     nose.main()

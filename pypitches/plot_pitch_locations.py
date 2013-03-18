@@ -18,7 +18,7 @@ def do_plots(filename):
     # first pass: plot one image for each pitch type
     for plot in plots:
         plot = defaultdict(lambda:None, plot) #if it's not mentioned in the yaml file, forget it
-        pitchset = pitches(session, name=name, pitch_type = plot['pitch_type'], stand=plot['stand'],
+        pitchset = pitches(name=name, pitch_type = plot['pitch_type'], stand=plot['stand'],
                            payoff=plot['payoff'], des=plot['des'], event=plot['event'])
 
         fig = plt.figure()

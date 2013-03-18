@@ -4,7 +4,7 @@
 # and return NumPy records for more convenient plotting.
 
 import numpy
-from model import Pitch, AtBat, Player, Game
+from model import Pitch, AtBat, Player, Game, SessionManager
 import matplotlib.pyplot as plt
 
 def objs2recarry(objs):
@@ -96,7 +96,7 @@ def pitches(session, name=None, event=None, des=None, date=None,
    q = session.query(Pitch)
    if name is not None:
       first, last = name
-      q = q.join(Pitch.pitchedby, Pitch.atbat).filter(Player.last == last).filter(Player.first==first)
+      q = q.join(Pitch.pitchedby).join(Pitch.atbat).filter(Player.last == last, Player.first==first)
    if event is not None: 
       q = q.filter(AtBat.event == event)
    if des is not None:

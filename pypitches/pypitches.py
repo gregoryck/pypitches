@@ -32,6 +32,7 @@ def main():
         import load
         from web.app import app
         import select_gamedirs
+        from plot_pitch_locations import do_plots
 
     if cmd == 'web':
         app.run()
@@ -42,7 +43,9 @@ def main():
     elif cmd == 'file':
         # will generate output by a config file
         # a la plot_pitch_locations.py
-        raise NotImplementedError
+        assert len(sys.argv) > 2, "usage: python pypitches.py file file.yaml"
+        do_plots(sys.argv[2])
+
     elif cmd == 'download':
         # hit the MLBAM server and get it all
         pass
