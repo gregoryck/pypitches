@@ -220,7 +220,7 @@ def get_keys_and_dirs(gamedirs_file):
       yield key, dirs
 
 @SessionManager.withsession
-def load(session, statuses):   #=frozenset(['final', 'maybe_partial'])):
+def load(session, statuses=frozenset(['final', 'maybe_partial'])):
    finals = session.query(GameDir).filter(GameDir.status.in_(statuses)).filter(GameDir.loaded == False).all()
    for final in finals:
       print final.path
