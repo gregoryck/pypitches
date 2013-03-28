@@ -18,7 +18,7 @@ sys.modules['model.session'] = sys.modules[model.__name__]
 from model import GameDir, Team, SessionManager, Game
 # sys.modules['']
 from settings import postgres_password, postgres_user, postgres_test_db
-from setup_postgres import initdb
+from setup_postgres import initdb, get_cursor
 
 static_dir = join(dirname(abspath(__file__)), 'static', 'testdummy')
 
@@ -90,8 +90,39 @@ class TestPlots(TestCase):
         atbat = pitch.atbat
         self.assertEqual(atbat.game == pitch.game)
 
+class TestDB(self):
+    def setUp(self):
+        self.game = createGame()
+        self.atbat = createAtBat(self.game)
+        self.pitch = createPitch(self.atbat)
 
-    def test_plot(self):
+def createGame():
+    conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+    sql = """
+          INSERT INTO game
+          (away_team_code, home_team_code, away_fname, home_fname, away_sname, home_sname, date)
+          VALUES
+          ('BOS', 'CHA', 'Boston Red Sox', 'Chicago White Sox', '', '', '2013-04-01')
+          """
+    conn.
+
+def createPlayer():
+    sql = """
+          INSERT INTO player
+          (first, last)
+          VALUES
+          ('Testy', 'Testerson')
+          """
+    conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+
+def createAtBat(game, pitcher, batter):
+    sql = """
+          INSERT INTO atbat
+          (inning, num, b, s, batter, stand, p_throws, b_height, pitcher, des, event, brief_event, game_pk, date)
+          VALUES
+          (%d, %d, %d, %d, %d)
+          """
+
 
 if __name__ == "__main__":
     nose.main()

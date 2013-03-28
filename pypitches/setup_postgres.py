@@ -12,19 +12,27 @@ from os.path import split, join, dirname, abspath
 pypitches_root = split(dirname(abspath(__file__)))[0]
 sql_dir = join(pypitches_root, "sql")
 sql_file = join(sql_dir, "baseball.sql")
+
+_conn = None
+def get_cursor(db, user, password):
+    if _conn:
+        return _conn, _conn.cursor()
+    else:
+        try:
+            conn = psycopg2.connect("dbname='%(postgres_db)s' user='%(postgres_user)s' host='localhost' password='%(postgres_password)s'" 
+                                    % dict(postgres_db=db, postgres_user=user, postgres_password=password))
+        except psycopg2.OperationalError as err:
+            if 'password authentication failed' in err.args[0]:
+                raise EnvironmentError, err.args[0] + "\n\n is the postgres user %s created?" % (user,)
+            if 'does not exist' in err.args[0]:
+                raise EnvironmentError, err.args[0] + "\n\n has the database been created?"
+            raise
+
+        cursor = conn.cursor()
+        return conn, cursor
+
 def initdb(db, user, password):
-    try:
-        conn = psycopg2.connect("dbname='%(postgres_db)s' user='%(postgres_user)s' host='localhost' password='%(postgres_password)s'" 
-                                % dict(postgres_db=db, postgres_user=user, postgres_password=password))
-    except psycopg2.OperationalError as err:
-        if 'password authentication failed' in err.args[0]:
-            raise EnvironmentError, err.args[0] + "\n\n is the postgres user %s created?" % (user,)
-        if 'does not exist' in err.args[0]:
-            raise EnvironmentError, err.args[0] + "\n\n has the database been created?"
-        raise
-
-    cursor = conn.cursor()
-
+    conn, cursor = get_cursor(db, user, password)
 
     with open(sql_file) as inhandle:
         ddl_string = "".join(list(inhandle))
