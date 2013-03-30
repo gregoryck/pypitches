@@ -15,7 +15,7 @@ print model.__name__
 sys.modules['pypitches.model.session'] = sys.modules[model.__name__]
 sys.modules['model.session'] = sys.modules[model.__name__]
 
-from model import GameDir, Team, SessionManager, Game
+from model import GameDir, Team, Game, Pitch
 # sys.modules['']
 from settings import postgres_password, postgres_user, postgres_test_db
 from setup_postgres import initdb, get_cursor
@@ -27,11 +27,12 @@ class TestBasics(TestCase):
     def setUp(self):
         # Destroy/Create test database
         initdb(postgres_test_db, postgres_user, postgres_password)
-        self.session = SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
+        self.session = model.SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
 
     def tearDown(self):
         self.session.rollback()
         self.session.close()
+        model.SessionManager.destroy_all()
 
     def test_basics(self):
         team = Team()
@@ -73,7 +74,7 @@ class TestWeb(TestCase):
 class TestPlots(TestCase):
     def setUp(self):
         initdb(postgres_test_db, postgres_user, postgres_password)
-        self.session = SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
+        self.session = model.SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
 
         from pypitches import select_gamedirs
         from pypitches import load
@@ -84,11 +85,12 @@ class TestPlots(TestCase):
     def tearDown(self):
         self.session.rollback()
         self.session.close() 
+        model.SessionManager.destroy_all()
 
     def test_atbat(self):
-        pitch = session.query(Pitch).filter().one()
+        pitch = self.session.query(Pitch).filter().all()[0]
         atbat = pitch.atbat
-        self.assertEqual(atbat.game == pitch.game)
+        self.assertEqual(atbat.game, pitch.game)
 
 # class TestDB(TestCase):
 #     def setUp(self):

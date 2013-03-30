@@ -16,6 +16,14 @@ class SessionManager(object):
     _managed_sessions = []
 
     @classmethod
+    def destroy_all(cls):
+        cls._engine = None
+        cls._sessionmaker = None
+        for session in cls._managed_sessions:
+            session.close()
+        cls._managed_sessions = []
+
+    @classmethod
     def create(cls, db=None, user=None, password=None):
         if not cls._engine:
             cls._engine, cls._sessionmaker = cls.create_engine(db, user, password)

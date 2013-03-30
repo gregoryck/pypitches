@@ -11,7 +11,8 @@ import yaml #use this for hand-written configs
 import json #use this for generated files
 from sqlalchemy.exc import IntegrityError
 from dateutil import parser
-from model import GameDir, SessionManager, Player, Game, Pitch, Team, AtBat, Runner
+import model
+from model import GameDir, Player, Game, Pitch, Team, AtBat, Runner
 
 
 verbose = False
@@ -51,7 +52,7 @@ def get_start_date(gamedirs):
       datestring = BeautifulStoneSoup(open(os.path.join(gamedir, "boxscore.xml"))).findAll('boxscore')[0]['date']
       return dateutils.parse(datestring)
 
-@SessionManager.withsession
+@model.SessionManager.withsession
 def loadbox(session, gamedirs):
    """Load game and box score data from game.xml, boxscore.xml
    Team names,  etc.
@@ -75,7 +76,7 @@ def loadbox(session, gamedirs):
    return gameobj
 
 players = {}
-@SessionManager.withsession
+@model.SessionManager.withsession
 def loadplayers(session, playersfile, gameobj):
    """Load players.xml"""
    ids = {}
@@ -140,7 +141,7 @@ def by_pitchcount(pitchdata1, pitchdata2):
    # Not all pitches have this field. Is id reliable? Or not sorting at all?
    return cmp(pitchdata1['tfs'], pitchdata2['tfs'])
 
-@SessionManager.withsession
+@model.SessionManager.withsession
 def loadpitches(session, pitchesfile, gameobj):
    """Load at-bats and individual pitches and runner events
    from inning_all.xml"""
@@ -192,7 +193,7 @@ def loadpitches(session, pitchesfile, gameobj):
 
 
 
-@SessionManager.withsession
+@model.SessionManager.withsession
 def load_game_data(session, game_pk, gamedirs):
    """Check for files in gamedir and then load game metadata
    (By calling loadbox and loadplayers)
@@ -219,7 +220,7 @@ def get_keys_and_dirs(gamedirs_file):
    for key, dirs in json.load(open(gamedirs_file)).iteritems():
       yield key, dirs
 
-@SessionManager.withsession
+@model.SessionManager.withsession
 def load(session, statuses=frozenset(['final', 'maybe_partial'])):
    finals = session.query(GameDir).filter(GameDir.status.in_(statuses)).filter(GameDir.loaded == False).all()
    for final in finals:

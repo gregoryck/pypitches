@@ -54,6 +54,7 @@ class Pitch(Base):
     pitchedby        = relationship("Player", primaryjoin="Pitch.pitcher==Player.id")
     seenby        = relationship("Player", primaryjoin="Pitch.batter==Player.id")
     # atbat         = relationship("AtBat", primaryjoin=and_("Pitch.game_pk == AtBat.game_pk", "Pitch.atbatnum==AtBat.num"))
+    game = relationship("Game", primaryjoin="Pitch.game_pk == Game.game_pk")
  
 
 class Game(Base):
