@@ -15,10 +15,11 @@ sql_file = join(sql_dir, "baseball.sql")
 
 _conn = None
 def get_cursor(db, user, password):
-    if _conn:
+    if _conn and not _conn.closed:
         return _conn, _conn.cursor()
     else:
         try:
+            print "new psycopg2 connection"
             conn = psycopg2.connect("dbname='%(postgres_db)s' user='%(postgres_user)s' host='localhost' password='%(postgres_password)s'" 
                                     % dict(postgres_db=db, postgres_user=user, postgres_password=password))
         except psycopg2.OperationalError as err:
@@ -31,13 +32,25 @@ def get_cursor(db, user, password):
         cursor = conn.cursor()
         return conn, cursor
 
-def initdb(db, user, password):
+def initdb(db, user, password, new_conn=True):
+    if new_conn:
+        global _conn
+        _conn = None
     conn, cursor = get_cursor(db, user, password)
 
     with open(sql_file) as inhandle:
         ddl_string = "".join(list(inhandle))
     cursor.execute(ddl_string)
     conn.commit()
+
+def destroydb(db, user, password):
+    conn, cursor = get_cursor(db, user, password)
+    conn.set_isolation_level(0)
+    cursor.execute("DROP DATABASE %s" % (db,))
+    conn.commit()
+    conn.close()
+
+
 
 if __name__ == "__main__":
     settings = dict(postgres_db='pypitches', postgres_user='pypitches', postgres_password='slider')

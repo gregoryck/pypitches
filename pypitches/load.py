@@ -15,7 +15,7 @@ import model
 from model import GameDir, Player, Game, Pitch, Team, AtBat, Runner
 
 
-verbose = False
+verbose = True
 
 errorlog = open("err", "w")
 nonamelog = open("unsaved_attrs.err", "w")
@@ -75,7 +75,6 @@ def loadbox(session, gamedirs):
    session.flush()
    return gameobj
 
-players = {}
 @model.SessionManager.withsession
 def loadplayers(session, playersfile, gameobj):
    """Load players.xml"""
@@ -87,10 +86,9 @@ def loadplayers(session, playersfile, gameobj):
             print >>errorlog, "ignoring duplicate playerdata: %s from file %s" % (str(playerdata.attrs), playersfile)
             continue
          ids[playerdata['id']] = playerdata
-         if playerdata['id'] not in players:
+         if not session.query(Player).filter(Player.id == playerdata['id']).first():
             playerobj  = xml2obj(playerdata.attrs, Player)
             session.add(playerobj)
-            players[playerdata['id']] = playerdata
          else:
             pass
 

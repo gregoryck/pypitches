@@ -20,6 +20,7 @@ class SessionManager(object):
         cls._engine = None
         cls._sessionmaker = None
         for session in cls._managed_sessions:
+            session.rollback()
             session.close()
         cls._managed_sessions = []
 
