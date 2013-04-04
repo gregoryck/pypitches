@@ -50,54 +50,85 @@ class TestPlots(TestCase):
 
 class TestDB(TestCase):
     def setUp(self):
-        self.game = createGame()
-        self.atbat = createAtBat(self.game)
-        self.batter = createPlayer()
-        self.pitcher = createPlayer()
-        self.atbat = createAtBat(self.game, self.pitcher, self.batter)
-        self.pitch = createPitch(self.atbat)
+        initdb(postgres_test_db, postgres_user, postgres_password)
+        self.session = model.SessionManager.create(postgres_test_db, postgres_user, postgres_password) 
+        self.game_pk = createGame(self.session, )
+        self.batter_id = createPlayer(self.session, )
+        self.pitcher_id = createPlayer(self.session, )
+        self.someguy_id = createPlayer(self.session, )
+        self.atbat_num = createAtBat(self.session, self.game_pk, self.pitcher_id, self.batter_id)
+        self.pitch_id = createPitch(self.session, self.game_pk, self.atbat_num, self.batter_id, self.pitcher_id)
+
+    # def tearDown(self):
+    #     self.session.rollback()
+    #     self.session.close()
+
+    def test_simple_query(self):
+        pitches = self.session.query(Pitch).filter(Pitch.batter == self.batter_id).all()
+        self.assertEqual(len(pitches), 1)
+        self.assertEqual(pitches[0].id, self.pitch_id)
+
+    # def test_other_guy(self):
+        # self.other_atbat = createAtBat(self.game, self.pitcher, self.someguy_id)
+        # atbats = self.session.query(AtBat).filter(AtBat.batter == self.)
+
 
 
 
 game_pk = 1
-def createGame():
+
+def createGame(session):
     global game_pk
-    conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+    # conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
     sql = """
           INSERT INTO game
-          (game_pk, away_team_code, home_team_code, away_fname, home_fname, away_sname, home_sname, date)
+          (game_pk, away_fname, home_fname, away_sname, home_sname, date)
           VALUES
-          (%d, 'BOS', 'CHA', 'Boston Red Sox', 'Chicago White Sox', '', '', '2013-04-01')
+          (%s, 'Boston Red Sox', 'Chicago White Sox', '', '', '2013-04-01')
           """
-    cursor.execute(sql, game_pk )
+    session.connection().execute(sql, [game_pk] )
     game_pk += 1
     return game_pk - 1
 
 playerid = 1
-def createPlayer():
+def createPlayer(session):
     global playerid
     sql = """
           INSERT INTO player
           (id, first, last)
           VALUES
-          (%d, 'Testy', 'Testerson')
+          (%s, 'Testy', 'Testerson')
           """
-    conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
-    cursor.execute(sql, playerid)
+    # conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+    session.connection().execute(sql, [playerid])
     playerid  += 1
     return playerid - 1
 
 atbatnum = 1
-def createAtBat(game, pitcher, batter):
+def createAtBat(session, game, pitcher, batter):
     global atbatnum
     sql = """
           INSERT INTO atbat
           (inning, num, b, s, batter, stand, p_throws, pitcher, des, event, brief_event, game_pk, date)
           VALUES
-          (1, %d, 1, 1, %d, 'R', 'R', %d, 'batted ball hits a dove', 'single', 'single', %d, '2013-04-01')
+          (1, %s, 1, 1, %s, 'R', 'R', %s, 'batted ball hits a dove', 'single', 'single', %s, '2013-04-01')
           """
-    conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
-    cursor.execute(sql, batter.id, pitcher.id, game.game_pk)
+    # conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+    session.connection().execute(sql, [atbatnum, batter, pitcher, game])
     atbatnum += 1
     return atbatnum - 1
+
+pitchid = 1
+def createPitch(session, game_pk, atbat_num, batter_id, pitcher_id):
+    global pitchid
+    sql = """
+          INSERT INTO pitch
+          (id, game_pk, atbatnum, batter, pitcher)
+          VALUES
+          (%s, %s, %s, %s, %s)
+          """
+    # conn, cursor = get_cursor(postgres_test_db, postgres_user, postgres_password)
+    session.connection().execute(sql, [pitchid, game_pk, atbat_num, batter_id, pitcher_id])
+    pitchid += 1
+    return pitchid - 1
 

@@ -17,12 +17,13 @@ class SessionManager(object):
 
     @classmethod
     def destroy_all(cls):
-        cls._engine = None
-        cls._sessionmaker = None
-        for session in cls._managed_sessions:
-            session.rollback()
-            session.close()
-        cls._managed_sessions = []
+        pass
+        # cls._engine = None
+        # cls._sessionmaker = None
+        # for session in cls._managed_sessions:
+        #     session.rollback()
+        #     session.close()
+        # cls._managed_sessions = []
 
     @classmethod
     def create(cls, db=None, user=None, password=None):
